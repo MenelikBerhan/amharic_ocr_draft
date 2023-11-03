@@ -48,7 +48,6 @@ pages = convert_from_path(pdf_file_path)
 
 
 # evaluate absolute file path and remove file if it exists for 'file' output mode
-
 if output_mode == 'file':
     output_file = test_file.split('.')[0] + '_output.txt'
     output_file_path = output_directory + '/' + output_file
@@ -77,15 +76,13 @@ for page in pages:
         page.save(img_stream, format="jpeg")  # test different formats quality?
 
         """ # if reading and writing from disk (page_loading_mode = 'file')
-            page.save("page_image.jpg", "jpg")
-            img_page = Image.open(f)  # a PIL object
-
-            image_path = 'amh-test.jpg'
-            image = cv2.imread(f) """
+            image_path = "page_image.jpg"
+            page.save(image_path, "jpg")
+            image = cv2.imread(image_path) """
 
         img_stream.seek(0)
         
-        # load image with cv2 using numpy on buffer
+        # load image with cv2 using numpy on buffer for page_loading_mode='bytes' 
         image = cv2.imdecode(np.frombuffer(img_stream.read(), np.uint8), 1)
         
         # cv2 uses BGR, so convert to RGB
