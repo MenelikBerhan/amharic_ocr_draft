@@ -52,8 +52,16 @@ pages = convert_from_path(pdf_file_path)
 if output_mode == 'file':
     output_file = test_file.split('.')[0] + '_output.txt'
     output_file_path = output_directory + '/' + output_file
+
+    if not path.exists(output_directory):
+        print("Error: Specified output directory '{}' doesn't exist".format(output_directory))
+        exit(1)
+
     if path.exists(output_file_path):
+        print("Warning: Output file with same name exists.")
         remove(output_file_path)
+        print("Removed previous output file '{}' ".format(output_file_path))
+
     page_no = 1
 
 
