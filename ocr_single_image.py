@@ -7,7 +7,7 @@ from sys import argv
 
 # OUTPUT MODE ['print', 'file'] # output directory for 'file' mode
 output_mode = 'file'
-output_directory = path.abspath('test_files/outputs')
+output_directory =  'test_files/outputs'
 
 
 # INPUT FILE test pdf file location
@@ -25,6 +25,8 @@ environ['TESSDATA_PREFIX'] = '/home/menelikberhan/amharic_ocr/training_data'
 
 
 ################ PROGRAM ENTRY #################
+
+output_directory = path.abspath(output_directory)
 
 image_file_path = image_test_directory + test_file
 
