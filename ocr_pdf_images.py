@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 import cv2
 import pytesseract as pts
 from sys import argv

@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 import cv2
 from os import environ, path, remove
 import pytesseract as pts
@@ -6,13 +6,13 @@ from sys import argv
 
 
 # OUTPUT MODE ['print', 'file'] # output directory for 'file' mode
-output_mode = 'file'
+output_mode = 'print'
 output_directory =  'test_files/outputs'
 
 
 # INPUT FILE test pdf file location
 image_test_directory = 'test_files/images/'
-test_file = 'paragraph_balebet_alba.jpg'
+test_file = 'kidanewolde.png'
 
 
 # TRAINING DATA directory (if not provieded uses tesseracts default dir)
