@@ -63,9 +63,7 @@ if output_mode == 'file':
         remove(output_file_path)
         print("Removed previous output file '{}' ".format(output_file_path))
 
-    page_no = 1
-
-
+page_no = 1
 # iterate over pdf pages
 for page in pages:
 
