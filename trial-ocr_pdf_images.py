@@ -7,6 +7,8 @@ from pdf2image import convert_from_path
 from io import BytesIO
 from PIL import Image
 import numpy as np
+import docx
+from fpdf import FPDF
 
 
 # OUTPUT MODE ['print', 'file'] # output directory for 'file' mode
@@ -62,6 +64,7 @@ if output_mode == 'file':
         print("Warning: Output file with same name exists.")
         remove(output_file_path)
         print("Removed previous output file '{}' ".format(output_file_path))
+    doc = docx.Document()
 
 page_no = 1
 # iterate over pdf pages
@@ -103,10 +106,26 @@ for page in pages:
             print(text)
 
         elif output_mode == 'file':
-            with open(output_file_path, 'a', encoding='utf-8') as file:
-                footer = '\n\n\t{} Page # {} {}\n\n'.format('-' * 20, page_no, '-' * 20)
-                page_no += 1
-                file.write(text + footer)
+            # with open(output_file_path, 'a', encoding='utf-8') as file:
+            #     footer = '\n\n\t{} Page # {} {}\n\n'.format('-' * 20, page_no, '-' * 20)
+            #     file.write(text + footer)
+            footer = '\n\n\t{} Page # {} {}\n\n'.format('-' * 20, page_no, '-' * 20)
+            text += footer
 
+            # par = doc.add_paragraph().add_run(text)
+            # par.font.name = 'Abyssinica SIL'
+            # page_no += 1
 
-print('Saved #{} number of pages in file: "{}"'.format(page_no - 1, output_file_path))
+            pdf = FPDF()
+            pdf.add_page()
+            pdf.add_font('sil', fname='/usr/share/fonts/truetype/abyssinica/AbyssinicaSIL-Regular.ttf')
+            pdf.set_font('sil')
+            pdf.set_auto_page_break(True)
+            # pdf.cell(text=text)
+            pdf.multi_cell(w=0, h=5, text=text)
+            pdf.output('test.pdf')
+            break
+            
+# if (output_mode == 'file'):
+#     doc.save('pdf_test.docx')
+#     print('Saved #{} number of pages in file: "{}"'.format(page_no - 1, output_file_path))

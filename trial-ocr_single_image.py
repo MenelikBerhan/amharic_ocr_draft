@@ -3,11 +3,13 @@ import cv2
 from os import environ, path, remove
 import pytesseract as pts
 from sys import argv
+import docx
+from fpdf import FPDF
 
 
 # OUTPUT MODE ['print', 'file'] # output directory for 'file' mode
-output_mode = 'print'
-output_directory =  'test_files/outputs'
+output_mode = 'file'
+output_directory =  '.'
 
 
 # INPUT FILE test pdf file location
@@ -70,5 +72,10 @@ text = pts.image_to_string(rgb_image, config=options)
 if output_mode == 'print':
     print(text)
 elif output_mode == 'file':
-    with open(output_file_path, 'w', encoding='utf-8') as file:
-        file.write(text)
+    # with open(output_file_path, 'w', encoding='utf-8') as file:
+    #     file.write(text)
+
+    doc = docx.Document()
+    par = doc.add_paragraph().add_run(text)
+    par.font.name = 'Abyssinica SIL'
+    doc.save('test.docx')
