@@ -171,6 +171,12 @@ def validate_parsed_cmd(line, **args):
     join = args.get('join')
     join = True if output_file else join
 
+    # set default output mode if None
+    output_mode = output_mode if output_mode else OUTPUT_MODE_DEFAULT
+
+    # TODO check if output_file already exist in output_dir,
+    # and prompt for deletion/overwriting confirmation from user
+
     verbose = args.get('verbose')
     result = {
         'input_directory': input_directory,
@@ -186,10 +192,10 @@ def validate_parsed_cmd(line, **args):
     """
     BY NOW: (changed attrs in args)
         input_file_type: image|pdf
-        inputs: list of input files (from input_file or input_files)
+        inputs: list of input files (from input_file/s or input_directory)
         input_directory: None if path in inputs (passed or default)
 
-        output_mode: None if no output_file
+        output_mode: From -m/output_file, or default
         output_file: string/None (un altered)
         output_dir: None if path in output_file (passed or default)
 
