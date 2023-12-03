@@ -6,7 +6,19 @@ from PIL import Image
 
 
 def process_image_simple(input_file_path, **args):
+    """Performs image preprocessing before passing image to tesseract.
+    
+    Args:
+        input_file_path (str): path of image to be processed
+        **args (dict): dictionary of parameters
+
+    Returns:
+        MatLike: the processed image as a MatLike Object of OpenCV2.
+    
+    """
     # load image
+    # TODO load image with cv2 using numpy on buffer for pdf pages
+    # image = cv2.imdecode(np.frombuffer(img_stream.read(), np.uint8), 1)
     img = cv2.imread(input_file_path)
 
     # cv2.imshow("orginal", image)
@@ -19,8 +31,8 @@ def process_image_simple(input_file_path, **args):
     thresh, im_bw = cv2.threshold(gray_image, 210, 230, cv2.THRESH_BINARY)
     # cv2.imwrite("temp/bw_image.jpg", im_bw)
 
-    # cv2.imshow("black and white", im_bw)
-    # cv2.waitKey(0)
+    # TODO Check if adding smoothening and border validation here increase accuracy
+
     return (im_bw)
 
 
@@ -59,7 +71,7 @@ def remove_noise_and_smooth(file_name):
     return or_image
 
 def process_image_detailed(file_path):
-    # TODO : Implement using opencv
+    # TODO : Implement using opencv and check inputs for helper funcs
     temp_filename = set_image_dpi(file_path)
     im_new = remove_noise_and_smooth(temp_filename)
     return im_new
