@@ -7,6 +7,8 @@ Attributes:
 
 """
 import cmd
+from functions.image_ocr import image_ocr
+# from functions.pdf_ocr import 
 from functions.parse_input_cmd import parse_cmd
 from functions.validate_input_cmd import validate_parsed_cmd
 from pprint import pprint
@@ -74,7 +76,7 @@ class OCRCommand(cmd.Cmd):
     prompt = '(ocr) '
 
     def preloop(self) -> None:
-        print(usage)
+        # print(usage)
         return super().preloop()
 
     def do_EOF(self, arg):
@@ -121,15 +123,17 @@ class OCRCommand(cmd.Cmd):
         """Performs an OCR on images."""
         args = parse_cmd('image ' + arg)
 
-        # print('\n----PARSE_INPUT RETURN-------')
-        # pprint(args)
-        # print('--------------------------------')
+        print('\n----PARSE_INPUT RETURN-------')
+        pprint(args)
+        print('--------------------------------')
         if not args:
             return
         validated_args = validate_parsed_cmd('image ' + arg, **args)
 
-        # print('\n----VALIDATE_ARGS RETURN-------')
-        # pprint(validated_args)
+        print('\n----VALIDATE_ARGS RETURN-------')
+        pprint(validated_args)
+        if validated_args:
+            image_ocr(**validated_args)
 
     def do_pdf(self, arg):
         """Performs an OCR on pdfs."""
