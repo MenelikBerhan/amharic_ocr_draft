@@ -45,6 +45,10 @@ def image_ocr(**args):
 
     output_file_path = output_path_prefix + output_file if output_file else None
 
+    # sets environ variables and returns tesseract config string
+    # TODO add parameters to args or create new dict
+    options = config_tesseract(**args)
+
     for i, image in enumerate(input_images):
 
         image_file_path = input_path_prefix + image
@@ -52,10 +56,6 @@ def image_ocr(**args):
         # process image
         # TODO add global variable for simple/detailed choice
         processed_image = process_image_simple(image_file_path)
-
-        # sets environ variables and returns tesseract config string
-        # TODO add parameters to args or create new dict
-        options = config_tesseract(**args)
     
         # other formats image_to_[...] - 'data' with dict option, pdf, box ...
         text = pts.image_to_string(processed_image, config=options)
@@ -65,6 +65,8 @@ def image_ocr(**args):
         save = not join or (i == len(input_images) - 1)
 
         # set output file from input file name, if not passed from command line
+        # TODO for multiple inputs w/o output file, joined output name is
+        # created from first input file name
         if not output_file_path and output_mode != 'print':
             output_file_end = path.splitext(image_file_path)[0]  # before extension
             output_file_end = path.split(output_file_end)[1]     # after last '/'
@@ -100,7 +102,9 @@ def image_ocr(**args):
             text += footer
             output_document = write_to_pdf(text, output_file_path, output_document, **params)
 
-    # display successful OCR summary
-    output_file_path = 'stdout' if output_mode == 'print' else output_file_path
-    print("Successfuly OCR'ed {} no. of pages and wrote to {}"
-          .format(len(input_images), output_file_path))
+        # display successful OCR summary
+        if save:
+            saved_to = 'stdout' if output_mode == 'print' else output_file_path
+            total_pages = len(input_images) if join else 1
+            print("Successfuly OCR'ed {} no. of pages and wrote to {}"
+                .format(total_pages, saved_to))
