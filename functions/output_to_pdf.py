@@ -20,19 +20,26 @@ def write_to_pdf(text, output_file_path, pdf=None, **args):
     """
     # TODO set and get defaults from module level variables
 
+    # to check if this is the first time setting up pdf
+    new_pdf = pdf is None
+
     pdf = pdf if pdf else FPDF()
-    pdf.add_page()
-    pdf.set_auto_page_break(True)
 
-    # get params
-    font_path = args.get('font_path','/usr/share/fonts/truetype/abyssinica/AbyssinicaSIL-Regular.ttf')
-    font_name = args.get('font_name', 'sil')
+    if new_pdf:     # set common pdf properties only for new pdf
+        # get params
+        # TODO handle font errors (missing the following glyphs:...)
+        font_path = args.get('font_path', 'fonts/AbyssinicaSIL-Regular.ttf')
+        font_name = args.get('font_name', 'sil')
 
-    # set params
-    pdf.add_font(font_name, fname=font_path)
-    pdf.set_font(font_name)
+        # set params
+        pdf.set_auto_page_break(True)
+        pdf.add_font(font_name, fname=font_path)
+        pdf.set_font(font_name)
+        
     w = args.get('w', 0)
     h = args.get('h', 5)
+    # add new page
+    pdf.add_page()
 
     # write text
     pdf.multi_cell(w=w, h=h, text=text)
