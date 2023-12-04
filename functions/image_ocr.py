@@ -67,14 +67,14 @@ def image_ocr(**args):
         # set output file from input file name, if not passed from command line
         # TODO for multiple inputs w/o output file, joined output name is
         # created from first input file name
-        if not output_file_path and output_mode != 'print':
+        if not output_file and output_mode != 'print':
             output_file_end = path.splitext(image_file_path)[0]  # before extension
             output_file_end = path.split(output_file_end)[1]     # after last '/'
             output_file_end += '_output.' + output_mode
             output_file_path = output_path_prefix + output_file_end
 
-        # to be added after each page
-        footer = '\n\t\t\t\t\t--- Page {} ---\n\n'.format(i + 1)
+        # to be added after each page if join
+        footer = '\n\t\t\t\t\t--- Page {} ---\n\n'.format(i + 1) if join else ''
 
         # base dict to pass to txt, docx or pdf writer functions
         base_dict = {
@@ -84,7 +84,7 @@ def image_ocr(**args):
         # =============== OUTPUT based on output_mode ==============
 
         if output_mode == 'print':
-            print("OUTPUT for image file: '{}'".format(image_file_path))
+            print("OUTPUT for image file: '{}':\n".format(image_file_path))
             print(text + footer)
 
         elif output_mode == 'txt':  # TODO move to separate function
@@ -105,6 +105,10 @@ def image_ocr(**args):
         # display successful OCR summary
         if save:
             saved_to = 'stdout' if output_mode == 'print' else output_file_path
-            total_pages = len(input_images) if join else 1
-            print("Successfuly OCR'ed {} no. of pages and wrote to {}"
-                .format(total_pages, saved_to))
+            total_pages = len(input_images)
+            if join:
+                info = "{} images".format(total_pages)
+            else:
+                info = "image '{}'".format(image_file_path)
+            print("Successfuly OCR'ed {} and wrote to '{}'\n"
+                .format(info, saved_to))
