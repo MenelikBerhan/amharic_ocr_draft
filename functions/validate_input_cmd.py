@@ -21,6 +21,7 @@ OUTPUT_MODES = ['print', 'txt', 'docx', 'pdf']
 OUTPUT_MODE_DEFAULT = 'print'
 IMAGE_EXTENSIONS = ['png', 'jpeg', 'jpg']
 
+# TODO break up function into parts based on what it validates
 # TODO CHECK WHEN does input_file_type == None ??
 # TODO for input output file/dir in current working directory
     # For now must prefix with './'
@@ -50,6 +51,15 @@ def validate_parsed_cmd(line, **args):
     if (input_file and input_files):
         print('*** Syntax Error: input file specified before -i option')
         return (None)
+
+    # for multiple inputs check if no input is repeated
+    if input_files:
+        counts = list(map(input_files.count, input_files))
+        repeats_index = [i for i, c in enumerate(counts) if c > 1]
+        if repeats_index:
+            print("*** Input Error: repeated input file: '{}'"
+                  .format(input_files[repeats_index[0]]))
+            return (None)
 
     input_directory = args.get('input_directory')  # list or None
     input_directory = input_directory[0] if input_directory else input_directory
