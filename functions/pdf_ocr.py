@@ -48,19 +48,40 @@ def pdf_ocr(**args):
 
     output_file_path = output_path_prefix + output_file if output_file else None
 
-    # to count total pages when join is true
+    # to count total pages
     total_pages = 0
+
+    # sets environ variables and returns tesseract config string
+    # TODO add parameters to args or create new dict
+    options = config_tesseract(**args)
 
     for pdf_index, input_pdf in enumerate(input_pdfs):
 
         # if not join create new output_doc for each pdf, else use one output_doc for all
         # TODO check system strain when join is True
-        output_document = None if not join else output_document
+        if not join:
+            output_document = None
 
         pdf_file_path = input_path_prefix + input_pdf
 
+        # set output file from input file name, if not passed from command line
+        # if not join, output file name is created from input name for each
+        # TODO if join, for multiple inputs , joined output name is created from first file.
+        if not output_file_path and output_mode != 'print':
+                output_file_end = path.splitext(pdf_file_path)[0]  # before extension
+                output_file_end = path.split(output_file_end)[1]     # after last '/'
+                output_file_end += '_output.' + output_mode
+                output_file_path = output_path_prefix + output_file_end
+
+        # to check if this is last pdf for join. used to set save to True
+        last_pdf = pdf_index == len(input_pdfs) - 1
+
         # read pdf
         pages = convert_from_path(pdf_file_path)
+
+        # reset total_pages for not join
+        if not join:
+            total_pages = 0
 
         print("Processing pdf no. {}: '{}'".format(pdf_index + 1, pdf_file_path))
 
@@ -93,26 +114,13 @@ def pdf_ocr(**args):
                 # Temporary
                 processed_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-                # sets environ variables and returns tesseract config string
-                # TODO add parameters to args or create new dict
-                options = config_tesseract(**args)
-
                 # other formats image_to_[...] - 'data' with dict option, pdf, box ...
                 text = pts.image_to_string(processed_image, config=options)
 
-                # if join is True, create a document (pdf/docx) for first pdf,
-                # then append pages from all inputs, then output after last pdf
-
-                # if last page (of each pdf) and join is False (create file for each pdf), save = True
+                # save output if this is last page of current pdf and,
+                # not join or join and current pdf is last one in list of pdfs  
                 last_page = page_index == len(pages) - 1
-                save = last_page and not join
-
-                # set output file from input file name, if not passed from command line
-                if not output_file_path and output_mode != 'print':
-                        output_file_end = path.splitext(pdf_file_path)[0]  # before extension
-                        output_file_end = path.split(output_file_end)[1]     # after last '/'
-                        output_file_end += '_output.' + output_mode
-                        output_file_path = output_path_prefix + output_file_end
+                save = last_page and (not join or last_pdf)
 
                 # to be added after each page
                 footer = '\n\t\t\t\t\t--- Page {} ---\n\n'.format(page_index + 1)
@@ -144,17 +152,10 @@ def pdf_ocr(**args):
                     text += footer
                     output_document = write_to_pdf(text, output_file_path, output_document, **params)
         
-        # if not join (output for each) display successful OCR summary
-        if not join:
-            output_file_path = 'stdout' if output_mode == 'print' else output_file_path
-            print("Successfuly OCR'ed {} no. of pages and wrote to {}"
-                .format(len(pages), output_file_path))
 
         total_pages += len(pages)
-
-
-    # display successful OCR summary for join
-    if join:
-        output_file_path = 'stdout' if output_mode == 'print' else output_file_path
-        print("Successfuly OCR'ed {} no. of pages and wrote to {}"
-            .format(total_pages, output_file_path))
+        # if save display successful OCR summary
+        if save:
+            saved_to = 'stdout' if output_mode == 'print' else output_file_path
+            print("Successfuly OCR'ed {} no. of pages and wrote to {}"
+                .format(total_pages, saved_to))
