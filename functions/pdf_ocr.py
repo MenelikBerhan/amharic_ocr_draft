@@ -1,131 +1,161 @@
 #!/usr/bin/env python3
 import cv2
-import pytesseract as pts
-from sys import argv
-from os import environ, path, remove
-from pdf2image import convert_from_path
-from io import BytesIO
-from PIL import Image
 import numpy as np
-import docx
-from fpdf import FPDF
+import pytesseract as pts
+from io import BytesIO
+from pdf2image import convert_from_path
+from os import path
+from .process_image import process_image_simple, process_image_detailed
+from .output_to_docx import write_to_docx
+from .output_to_pdf import write_to_pdf
+from .tesseract_config import config_tesseract
 
+INPUT_DIR_DEFAULT_IMG = 'test_files/images/'
+INPUT_DIR_DEFAULT_PDF = 'test_files/pdfs/'
+OUTPUT_DIR_DEFAULT = 'test_files/outputs/'
+OUTPUT_MODES = ['print', 'txt', 'docx', 'pdf']
+OUTPUT_MODE_DEFAULT = 'print'
+IMAGE_EXTENSIONS = ['png', 'jpeg', 'jpg']
 
-# OUTPUT MODE ['print', 'file'] # output directory for 'file' mode
-output_mode = 'file'
-output_directory = '.'
+def pdf_ocr(**args):
+    """
+    Performs OCR on pdfs and depending on user input, output to either:
+        * standard output (default),
+        * text file (*.txt),
+        * MS word file (*.docx), or
+        * pdf file (*.pdf)
+    
+    Args:
+        **args (dict): a keyword dictionary generated from parsed and
+            validated user command line input.
+    """
+    input_pdfs = args.get('input_files')
+    input_directory = args.get('input_directory')
 
+    input_path_prefix = input_directory if input_directory else ''
+    input_path_prefix += '/' if (input_path_prefix and input_path_prefix[-1] != '/')  else ''
 
-# INPUT FILE test pdf file location
-pdf_test_directory = 'test_files/pdfs/'
-test_file = 'kidane_wolde_dictionary_3pgs.pdf'  # no '.' in file name
+    output_mode = args.get('output_mode')
+    output_file = args.get('output_file')
+    output_directory = args.get('output_directory')  # None if output file contains path
 
+    output_path_prefix = output_directory if output_directory else ''
+    output_path_prefix += '/' if (output_path_prefix and output_path_prefix[-1] != '/')  else ''
 
-# PAGE LOADING MODE from pdf ['bytes', 'file']
-# 'bytes': as buffer w/o saving to disk, 'file': by saving individual images to disk
-page_loading_mode = 'bytes'
+    join = args.get('join')
 
+    output_document = None  # a docx Documnet object or a pdf Object from FPDF
 
-# TRAINING DATA directory (if not provieded uses tesseracts default dir)
-# TESSDATA_PREFIX='/home/menelikberhan/amharic_ocr/test_data' (doesnt work)
-environ['TESSDATA_PREFIX'] = '/home/menelikberhan/amharic_ocr/training_data'
+    output_file_path = output_path_prefix + output_file if output_file else None
 
-################ END OF CONFIG #################
+    # to count total pages when join is true
+    total_pages = 0
 
+    for pdf_index, input_pdf in enumerate(input_pdfs):
 
+        # if not join create new output_doc for each pdf, else use one output_doc for all
+        # TODO check system strain when join is True
+        output_document = None if not join else output_document
 
+        pdf_file_path = input_path_prefix + input_pdf
 
+        # read pdf
+        pages = convert_from_path(pdf_file_path)
 
-################ PROGRAM ENTRY #################
+        print("Processing pdf no. {}: '{}'".format(pdf_index + 1, pdf_file_path))
 
-output_directory = path.abspath(output_directory)
+        # iterate over each pdf's pages
+        for page_index, page in enumerate(pages):
 
-pdf_file_path = pdf_test_directory + test_file
+            # use BytesIO object, without saving to disk
+            with BytesIO() as img_stream:
 
-# check if input file exists
-if not path.exists(pdf_file_path):
-    print("Error: Specified input file '{}' doesn't exist".format(pdf_file_path))
-    exit(1)
+                # notify start of scan
+                print('Scanning page {}"'.format(page_index + 1))
 
-# read pdf
-pages = convert_from_path(pdf_file_path)
+                # specify format to save in bytes object
+                page.save(img_stream, format="jpeg")  # test different formats quality?
 
+                """ # if reading and writing from disk (page_loading_mode = 'file')
+                    image_path = "page_image.jpg"
+                    page.save(image_path, "jpg")
+                    image = cv2.imread(image_path) """
 
-# evaluate absolute file path and remove file if it exists for 'file' output mode
-if output_mode == 'file':
-    output_file = test_file.split('.')[0] + '_output.txt'
-    output_file_path = output_directory + '/' + output_file
+                img_stream.seek(0)
+                
+                # load image with cv2 using numpy on buffer for page_loading_mode='bytes' 
+                image = cv2.imdecode(np.frombuffer(img_stream.read(), np.uint8), 1)
+                
+                # process image
+                # TODO add global variable for simple/detailed choice
+                # processed_image = process_image_simple(image_file_path)
+                
+                # Temporary
+                processed_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-    if not path.exists(output_directory):
-        print("Error: Specified output directory '{}' doesn't exist".format(output_directory))
-        exit(1)
+                # sets environ variables and returns tesseract config string
+                # TODO add parameters to args or create new dict
+                options = config_tesseract(**args)
 
-    if path.exists(output_file_path):
-        print("Warning: Output file with same name exists.")
-        remove(output_file_path)
-        print("Removed previous output file '{}' ".format(output_file_path))
-    doc = docx.Document()
+                # other formats image_to_[...] - 'data' with dict option, pdf, box ...
+                text = pts.image_to_string(processed_image, config=options)
 
-page_no = 1
-# iterate over pdf pages
-for page in pages:
+                # if join is True, create a document (pdf/docx) for first pdf,
+                # then append pages from all inputs, then output after last pdf
 
-    # use BytesIO object, without saving to disk
-    with BytesIO() as img_stream:
+                # if last page (of each pdf) and join is False (create file for each pdf), save = True
+                last_page = page_index == len(pages) - 1
+                save = last_page and not join
 
-        print('Scanning page #{}"'.format(page_no))
+                # set output file from input file name, if not passed from command line
+                if save and output_mode != 'print':
+                    if not output_file:
+                        output_file_end = path.splitext(pdf_file_path)[0]  # before extension
+                        output_file_end = path.split(output_file_end)[1]     # after last '/'
+                        output_file_end += '_output.' + output_mode
+                        output_file_path = output_path_prefix + output_file_end
 
-        # specify format to save in bytes object
-        page.save(img_stream, format="jpeg")  # test different formats quality?
+                # to be added after each page
+                footer = '\n\t\t\t\t\t--- Page {} ---\n\n'.format(page_index + 1)
 
-        """ # if reading and writing from disk (page_loading_mode = 'file')
-            image_path = "page_image.jpg"
-            page.save(image_path, "jpg")
-            image = cv2.imread(image_path) """
+                # base dict to pass to txt, docx or pdf writer functions
+                base_dict = {
+                    'save': save    # add common params here (font, layout ...)
+                }
 
-        img_stream.seek(0)
+                # =============== OUTPUT based on output_mode ==============
+
+                if output_mode == 'print':
+                    if page_index == 0:
+                        print("OUTPUT for pdf file: '{}'".format(pdf_file_path))
+                    print(text + footer)
+
+                elif output_mode == 'txt':  # TODO move to separate function
+                    write_mode = 'a' if page_index else 'w'  # truncate for 1st page, then append
+                    with open(output_file_path, write_mode, encoding='utf-8') as file:
+                        file.write(text + footer)
+
+                elif output_mode == 'docx':
+                    params = base_dict  # add specific params here
+                    text += footer
+                    output_document = write_to_docx(text, output_file_path, output_document, **params)
+
+                elif output_mode == 'pdf':
+                    params = base_dict
+                    text += footer
+                    output_document = write_to_pdf(text, output_file_path, output_document, **params)
         
-        # load image with cv2 using numpy on buffer for page_loading_mode='bytes' 
-        image = cv2.imdecode(np.frombuffer(img_stream.read(), np.uint8), 1)
-        
-        # cv2 uses BGR, so convert to RGB
-        rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        # if not join (output for each) display successful OCR summary
+        if not join:
+            output_file_path = 'stdout' if output_mode == 'print' else output_file_path
+            print("Successfuly OCR'ed {} no. of pages and wrote to {}"
+                .format(len(pages), output_file_path))
+
+        total_pages += len(pages)
 
 
-        # config tesseract options
-        lang = 'amh'
-        psm = 1         # image processing option (1 & 3 for full page). refer doc.
-        options = "-l {} --psm {}".format(lang, psm)
-
-
-        # other formats image_to_[...] - 'data' with dict option, pdf, box ...
-        text = pts.image_to_string(rgb_image, config=options)
-
-        # out put based on output_mode
-        if output_mode == 'print':
-            print(text)
-
-        elif output_mode == 'file':
-            # with open(output_file_path, 'a', encoding='utf-8') as file:
-            #     footer = '\n\n\t{} Page # {} {}\n\n'.format('-' * 20, page_no, '-' * 20)
-            #     file.write(text + footer)
-            footer = '\n\n\t{} Page # {} {}\n\n'.format('-' * 20, page_no, '-' * 20)
-            text += footer
-
-            # par = doc.add_paragraph().add_run(text)
-            # par.font.name = 'Abyssinica SIL'
-            # page_no += 1
-
-            pdf = FPDF()
-            pdf.add_page()
-            pdf.add_font('sil', fname='/usr/share/fonts/truetype/abyssinica/AbyssinicaSIL-Regular.ttf')
-            pdf.set_font('sil')
-            pdf.set_auto_page_break(True)
-            # pdf.cell(text=text)
-            pdf.multi_cell(w=0, h=5, text=text)
-            pdf.output('test.pdf')
-            break
-            
-# if (output_mode == 'file'):
-#     doc.save('pdf_test.docx')
-#     print('Saved #{} number of pages in file: "{}"'.format(page_no - 1, output_file_path))
+    # display successful OCR summary for join
+    if join:
+        output_file_path = 'stdout' if output_mode == 'print' else output_file_path
+        print("Successfuly OCR'ed {} no. of pages and wrote to {}"
+            .format(total_pages, output_file_path))

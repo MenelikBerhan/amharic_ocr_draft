@@ -62,11 +62,9 @@ def image_ocr(**args):
 
         # save output file if not join or this is last page
         # TODO check system strain for too many image inputs with join
-        # and save after specified images
         save = not join or (i == len(input_images) - 1)
-        
-        # output_file_path = None
 
+        # set output file from input file name, if not passed from command line
         if save and output_mode != 'print':
             if not output_file:
                 output_file_end = path.splitext(image_file_path)[0]  # before extension
@@ -74,15 +72,18 @@ def image_ocr(**args):
                 output_file_end += '_output.' + output_mode
                 output_file_path = output_path_prefix + output_file_end
 
-        footer = '\n\t\t\t\t\t--- Page {} ---\n\n'.format(i + 1)  # to be added after each page
+        # to be added after each page
+        footer = '\n\t\t\t\t\t--- Page {} ---\n\n'.format(i + 1)
 
-        base_dict = {       # base dict to pass to txt, docx or pdf writer functions
+        # base dict to pass to txt, docx or pdf writer functions
+        base_dict = {
             'save': save    # add common params here (font, layout ...)
         }
 
         # =============== OUTPUT based on output_mode ==============
 
         if output_mode == 'print':
+            print("OUTPUT for image file: '{}'".format(image_file_path))
             print(text + footer)
 
         elif output_mode == 'txt':  # TODO move to separate function
