@@ -67,7 +67,7 @@ def pdf_ocr(**args):
         # set output file from input file name, if not passed from command line
         # if not join, output file name is created from input name for each
         # TODO if join, for multiple inputs , joined output name is created from first file.
-        if not output_file_path and output_mode != 'print':
+        if not output_file and output_mode != 'print':
                 output_file_end = path.splitext(pdf_file_path)[0]  # before extension
                 output_file_end = path.split(output_file_end)[1]     # after last '/'
                 output_file_end += '_output.' + output_mode
@@ -92,7 +92,7 @@ def pdf_ocr(**args):
             with BytesIO() as img_stream:
 
                 # notify start of scan
-                print('Scanning page {}"'.format(page_index + 1))
+                print('Scanning page {}'.format(page_index + 1))
 
                 # specify format to save in bytes object
                 page.save(img_stream, format="jpeg")  # test different formats quality?
@@ -123,6 +123,7 @@ def pdf_ocr(**args):
                 save = last_page and (not join or last_pdf)
 
                 # to be added after each page
+                # page no. starts from 1 for each pdf file
                 footer = '\n\t\t\t\t\t--- Page {} ---\n\n'.format(page_index + 1)
 
                 # base dict to pass to txt, docx or pdf writer functions
@@ -157,5 +158,5 @@ def pdf_ocr(**args):
         # if save display successful OCR summary
         if save:
             saved_to = 'stdout' if output_mode == 'print' else output_file_path
-            print("Successfuly OCR'ed {} no. of pages and wrote to {}"
+            print("Successfuly OCR'ed {} no. of pages and wrote to '{}'\n"
                 .format(total_pages, saved_to))
