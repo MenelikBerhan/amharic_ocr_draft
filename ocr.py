@@ -8,7 +8,7 @@ Attributes:
 """
 import cmd
 from functions.image_ocr import image_ocr
-# from functions.pdf_ocr import 
+from functions.pdf_ocr import pdf_ocr
 from functions.parse_input_cmd import parse_cmd
 from functions.validate_input_cmd import validate_parsed_cmd
 from pprint import pprint
@@ -132,6 +132,8 @@ class OCRCommand(cmd.Cmd):
 
         print('\n----VALIDATE_ARGS RETURN-------')
         pprint(validated_args)
+        print('--------------------------------')
+
         if validated_args:
             image_ocr(**validated_args)
 
@@ -139,16 +141,19 @@ class OCRCommand(cmd.Cmd):
         """Performs an OCR on pdfs."""
         args = parse_cmd('pdf ' + arg)
 
-        # print('\n----PARSE_INPUT RETURN-------')
-        # pprint(args)
-        # print('--------------------------------')
+        print('\n----PARSE_INPUT RETURN-------')
+        pprint(args)
+        print('--------------------------------')
         if not args:
             return
         validated_args = validate_parsed_cmd('pdf ' + arg, **args)
 
-        # print('\n----VALIDATE_ARGS RETURN-------')
-        # pprint(validated_args)
+        print('\n----VALIDATE_ARGS RETURN-------')
+        pprint(validated_args)
+        print('--------------------------------')
 
+        if validated_args:
+            pdf_ocr(**validated_args)
 
 if __name__ == '__main__':
     OCRCommand().cmdloop()
