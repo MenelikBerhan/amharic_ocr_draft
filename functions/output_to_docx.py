@@ -1,13 +1,4 @@
 #!/usr/bin/env python3
-import cv2
-import pytesseract as pts
-from sys import argv
-from os import environ, path, remove
-from pdf2image import convert_from_path
-from io import BytesIO
-from PIL import Image
-import numpy as np
-import math
 import docx
 
 
