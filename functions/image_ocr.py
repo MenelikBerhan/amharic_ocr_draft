@@ -65,12 +65,11 @@ def image_ocr(**args):
         save = not join or (i == len(input_images) - 1)
 
         # set output file from input file name, if not passed from command line
-        if save and output_mode != 'print':
-            if not output_file:
-                output_file_end = path.splitext(image_file_path)[0]  # before extension
-                output_file_end = path.split(output_file_end)[1]     # after last '/'
-                output_file_end += '_output.' + output_mode
-                output_file_path = output_path_prefix + output_file_end
+        if not output_file_path and output_mode != 'print':
+            output_file_end = path.splitext(image_file_path)[0]  # before extension
+            output_file_end = path.split(output_file_end)[1]     # after last '/'
+            output_file_end += '_output.' + output_mode
+            output_file_path = output_path_prefix + output_file_end
 
         # to be added after each page
         footer = '\n\t\t\t\t\t--- Page {} ---\n\n'.format(i + 1)

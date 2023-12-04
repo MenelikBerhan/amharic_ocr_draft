@@ -108,8 +108,7 @@ def pdf_ocr(**args):
                 save = last_page and not join
 
                 # set output file from input file name, if not passed from command line
-                if save and output_mode != 'print':
-                    if not output_file:
+                if not output_file_path and output_mode != 'print':
                         output_file_end = path.splitext(pdf_file_path)[0]  # before extension
                         output_file_end = path.split(output_file_end)[1]     # after last '/'
                         output_file_end += '_output.' + output_mode
