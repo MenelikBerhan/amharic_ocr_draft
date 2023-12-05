@@ -99,18 +99,17 @@ def validate_parsed_cmd(line, **args):
     output_file = output_file[0] if type(output_file) == list else output_file
     output_directory = args.get('output_directory')  # list or None
     output_directory = output_directory[0] if output_directory else output_directory
-    output_mode = args.get('output_mode')  # list or None
+    output_mode = args.get('output_mode')  # list or None. Verified by argparse
     output_mode = output_mode[0] if output_mode else output_mode
 
     # check if output file is passed with valid extension
     # and if extension matches any arg passed with -m
     if output_file:
         ouput_extension = output_file.split('.')[-1]
-        if (ouput_extension != 'pdf') and (ouput_extension not in OUTPUT_MODES):
+        if (ouput_extension not in OUTPUT_MODES):
             print("*** Input Error: output file with invalid extension: '{}'".format(ouput_extension))
             return (None)
-        check_ouput_mode = ouput_extension if ouput_extension == 'pdf' else 'image'
-        if output_mode and output_mode != check_ouput_mode:
+        if output_mode and output_mode != ouput_extension:
             print(
                 "*** Input Error: output file extension '{}' does not match output mode '{}'".
                 format(ouput_extension, output_mode))
