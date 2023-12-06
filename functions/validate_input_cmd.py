@@ -166,6 +166,11 @@ def validate_parsed_cmd(line, **args):
             print("*** Input Error: no '{}' file in '{}'".format(input_file_type, input_directory))
             return (None)
 
+    # if $ in output file or directory expand it from shell vars
+    if output_file and '$' in output_file:
+        output_file = path.expandvars(output_file)
+    if output_directory and '$' in output_directory:
+        output_directory = path.expandvars(output_directory)
 
     output_dir_check = path.split(output_file)[0] if not output_directory else output_directory
     # Check if output_dir exists and is dir
