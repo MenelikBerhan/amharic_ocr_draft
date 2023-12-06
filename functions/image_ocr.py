@@ -3,6 +3,7 @@ import pytesseract as pts
 from os import path
 from .output_to_docx import write_to_docx
 from .output_to_pdf import write_to_pdf
+from .output_to_txt import write_to_txt
 from .process_image import process_image_simple, process_image_detailed
 from .tesseract_config import config_tesseract
 
@@ -53,7 +54,7 @@ def image_ocr(**args):
     # set output file path if output file
     output_file_path = output_path_prefix + output_file if output_file else None
 
-    output_document = None  # a docx Documnet object or a pdf Object from FPDF
+    output_document = None  # a docx Documnet object, or a pdf Object from FPDF, or a buffer
 
     # sets environ variables and returns tesseract config string
     # TODO add parameters to args or create new dict
@@ -95,7 +96,10 @@ def image_ocr(**args):
 
         # base dict to pass to txt, docx or pdf writer functions
         base_dict = {
-            'save': save    # add common params here (font, layout ...)
+            'save': save,    # add common params here (font, layout ...)
+            'join': join,
+            'page_index': i,
+            'input_file_type': 'image'
         }
 
         # =============== OUTPUT based on output_mode ==============
@@ -105,9 +109,9 @@ def image_ocr(**args):
             print(text + footer)
 
         elif output_mode == 'txt':  # TODO move to separate function
-            write_mode = 'a' if i else 'w'  # truncate for 1st page, then append
-            with open(output_file_path, write_mode, encoding='utf-8') as file:
-                file.write(text + footer)
+            params = base_dict  # add specific params here
+            text += footer
+            output_document = write_to_txt(text, output_file_path, output_document, **params)
 
         elif output_mode == 'docx':
             params = base_dict  # add specific params here
@@ -121,7 +125,7 @@ def image_ocr(**args):
 
         # display successful OCR summary
         if save:
-            saved_to = 'stdout' if output_mode == 'print' else output_file_path
+            saved_to = 'stdout' if output_mode == 'print' else path.abspath(output_file_path)
             total_pages = len(input_images)
             if join and total_pages > 1:
                 info = "{} images".format(total_pages)

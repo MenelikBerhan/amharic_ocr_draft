@@ -8,6 +8,7 @@ from os import path
 from .process_image import process_image_simple, process_image_detailed
 from .output_to_docx import write_to_docx
 from .output_to_pdf import write_to_pdf
+from .output_to_txt import write_to_txt
 from .tesseract_config import config_tesseract
 
 INPUT_DIR_DEFAULT_IMG = 'test_files/images/'
@@ -138,7 +139,11 @@ def pdf_ocr(**args):
 
                 # base dict to pass to txt, docx or pdf writer functions
                 base_dict = {
-                    'save': save    # add common params here (font, layout ...)
+                    'save': save,    # add common params here (font, layout ...)
+                    'join': join,
+                    'pdf_index': pdf_index,
+                    'page_index': page_index,
+                    'input_file_type': 'pdf'
                 }
 
                 # =============== OUTPUT based on output_mode ==============
@@ -148,15 +153,10 @@ def pdf_ocr(**args):
                         print("OUTPUT for pdf file: '{}'".format(pdf_file_path))
                     print(text + footer)
 
-                elif output_mode == 'txt':  # TODO move to separate function
-                    # if join: truncate for 1st page of 1st pdf, then append
-                    # if not join: truncate for 1st page of each pdf, then append
-                    if join:
-                        write_mode = 'w' if pdf_index == 0 and page_index == 0 else 'a'
-                    else:
-                        write_mode = 'w' if page_index == 0 else 'a'
-                    with open(output_file_path, write_mode, encoding='utf-8') as file:
-                        file.write(text + footer)
+                elif output_mode == 'txt':
+                    params = base_dict  # add specific params here
+                    text += footer
+                    output_document = write_to_txt(text, output_file_path, output_document, **params)
 
                 elif output_mode == 'docx':
                     params = base_dict  # add specific params here
@@ -164,7 +164,7 @@ def pdf_ocr(**args):
                     output_document = write_to_docx(text, output_file_path, output_document, **params)
 
                 elif output_mode == 'pdf':
-                    params = base_dict
+                    params = base_dict  # add specific params here
                     text += footer
                     output_document = write_to_pdf(text, output_file_path, output_document, **params)
         
@@ -172,6 +172,6 @@ def pdf_ocr(**args):
         total_pages += len(pages)
         # if save display successful OCR summary
         if save:
-            saved_to = 'stdout' if output_mode == 'print' else output_file_path
+            saved_to = 'stdout' if output_mode == 'print' else path.abspath(output_file_path)
             print("Successfuly OCR'ed {} no. of pages and wrote to '{}'\n"
                 .format(total_pages, saved_to))
