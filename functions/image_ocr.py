@@ -41,17 +41,35 @@ def image_ocr(**args):
 
     join = args.get('join')
 
-    output_document = None  # a docx Documnet object or a pdf Object from FPDF
+    # set output file from input images if join and output file not passed
+    if (join and not output_file and output_mode != 'print'):
+        output_file = ''
+        for img in input_images:
+            img_end = path.splitext(img)[0]  # before extension
+            img_end = path.split(img_end)[1]     # after last '/'
+            output_file += img_end + '-'
+        output_file += 'joined_output.' + output_mode
 
+    # set output file path if output file
     output_file_path = output_path_prefix + output_file if output_file else None
+
+    output_document = None  # a docx Documnet object or a pdf Object from FPDF
 
     # sets environ variables and returns tesseract config string
     # TODO add parameters to args or create new dict
     options = config_tesseract(**args)
 
     for i, image in enumerate(input_images):
+        
+        # if not join create new output_doc for each image, else use one output_doc for all
+        # TODO check system strain when join is True
+        if not join:
+            output_document = None
 
         image_file_path = input_path_prefix + image
+
+        # display image processing start
+        print("Processing image file no. {}: '{}'".format(i + 1, image_file_path))
 
         # process image
         # TODO add global variable for simple/detailed choice
@@ -64,13 +82,12 @@ def image_ocr(**args):
         # TODO check system strain for too many image inputs with join
         save = not join or (i == len(input_images) - 1)
 
-        # set output file from input file name, if not passed from command line
-        # TODO for multiple inputs w/o output file, joined output name is
-        # created from first input file name
+        # set output file path from input file name for each image.
+        # Used when join is False (if True output_file is already set or passed)
         if not output_file and output_mode != 'print':
             output_file_end = path.splitext(image_file_path)[0]  # before extension
             output_file_end = path.split(output_file_end)[1]     # after last '/'
-            output_file_end += '_output.' + output_mode
+            output_file_end += '-output.' + output_mode
             output_file_path = output_path_prefix + output_file_end
 
         # to be added after each page if join
@@ -106,7 +123,7 @@ def image_ocr(**args):
         if save:
             saved_to = 'stdout' if output_mode == 'print' else output_file_path
             total_pages = len(input_images)
-            if join:
+            if join and total_pages > 1:
                 info = "{} images".format(total_pages)
             else:
                 info = "image '{}'".format(image_file_path)
