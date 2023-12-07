@@ -7,13 +7,6 @@ from .output_to_txt import write_to_txt
 from .process_image import process_image_simple, process_image_detailed
 from .tesseract_config import config_tesseract
 
-INPUT_DIR_DEFAULT_IMG = 'test_files/images/'
-INPUT_DIR_DEFAULT_PDF = 'test_files/pdfs/'
-OUTPUT_DIR_DEFAULT = 'test_files/outputs/'
-OUTPUT_MODES = ['print', 'txt', 'docx', 'pdf']
-OUTPUT_MODE_DEFAULT = 'print'
-IMAGE_EXTENSIONS = ['png', 'jpeg', 'jpg']
-
 
 def image_ocr(**args):
     """

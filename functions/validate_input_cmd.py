@@ -12,14 +12,8 @@ Attributes:
 """
 from os import listdir, path
 from pprint import pprint
+from . import defaults_dict
 
-
-INPUT_DIR_DEFAULT_IMG = 'test_files/images/'
-INPUT_DIR_DEFAULT_PDF = 'test_files/pdfs/'
-OUTPUT_DIR_DEFAULT = 'test_files/outputs/'
-OUTPUT_MODES = ['print', 'txt', 'docx', 'pdf']
-OUTPUT_MODE_DEFAULT = 'print'
-IMAGE_EXTENSIONS = ['png', 'jpeg', 'jpg']
 
 # TODO break up function into parts based on what it validates
 # TODO CHECK WHEN does input_file_type == None ??
@@ -76,6 +70,19 @@ def validate_parsed_cmd(line, **args):
         ):
             print('*** Argument Error: input directory passed while input file/s contain path')
             return (None)
+
+
+    # ========= Get default params from dict ====================
+
+    IMAGE_EXTENSIONS = defaults_dict.get('IMAGE_EXTENSIONS')
+    OUTPUT_MODES = defaults_dict.get('OUTPUT_MODES')
+    INPUT_DIR_DEFAULT_IMG = defaults_dict.get('INPUT_DIR_DEFAULT_IMG')
+    INPUT_DIR_DEFAULT_PDF = defaults_dict.get('INPUT_DIR_DEFAULT_PDF')
+    OUTPUT_DIR_DEFAULT = defaults_dict.get('OUTPUT_DIR_DEFAULT')
+    OUTPUT_MODE_DEFAULT = defaults_dict.get('OUTPUT_MODE_DEFAULT')
+
+    # ===========================================================
+
 
     input_file_type = args.get('input_file_type')
     # Check if input_file/s exist their extensions are of the same input type and

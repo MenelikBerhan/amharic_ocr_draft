@@ -6,7 +6,7 @@ functions.
 import argparse
 from pprint import pprint
 from shlex import split
-
+from . import defaults_dict
 
 class ArgumentParser(argparse.ArgumentParser):
         """
@@ -53,7 +53,7 @@ def parse_cmd(line):
 
     parser.add_argument('-d', '--dest-directory', dest='output_directory', nargs=1, required=False, metavar='output_directory')
 
-    parser.add_argument('-m', '--output-mode', dest='output_mode', choices=['print', 'txt', 'docx', 'pdf'], required=False, nargs=1, metavar='output_mode')
+    parser.add_argument('-m', '--output-mode', dest='output_mode', choices=defaults_dict.get('OUTPUT_MODES'), required=False, nargs=1, metavar='output_mode')
 
     parser.add_argument('-j', '--join', action='store_true', help='join outputs from multiple inputs into one file')
 
@@ -61,8 +61,6 @@ def parse_cmd(line):
 
     try:
         args = parser.parse_args(split(line))
-        # print('\n----PARSE_INPUT RETURN-------')
-        # pprint(vars(args))
         return(vars(args))
     except Exception as e:
         print('*** Argument Error:', e)
