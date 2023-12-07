@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import docx
-from . import output_dict
+from . import write_dict
 
 
 def write_to_docx(text, output_file_path, document=None, **args):
@@ -21,7 +21,7 @@ def write_to_docx(text, output_file_path, document=None, **args):
 
     document = document if document else docx.Document()
     par = document.add_paragraph().add_run(text)
-    par.font.name = args.get('font_name', output_dict.get('font_name_def'))
+    par.font.name = args.get('font_name', write_dict.get('font_name_def'))
 
     if args.get('save'):
         document.save(output_file_path)

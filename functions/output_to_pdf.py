@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from fpdf import FPDF
-from . import output_dict
+from . import write_dict
 
 
 def write_to_pdf(text, output_file_path, pdf=None, **args):
@@ -29,16 +29,16 @@ def write_to_pdf(text, output_file_path, pdf=None, **args):
     if new_pdf:     # set common pdf properties only for new pdf
         # get params
         # TODO handle font errors (missing the following glyphs:...)
-        font_path = args.get('font_path', output_dict.get('font_path_def'))
-        font_name = args.get('font_name', output_dict.get('font_name_def'))
+        font_path = args.get('font_path', write_dict.get('font_path_def'))
+        font_name = args.get('font_name', write_dict.get('font_name_def'))
 
         # set params
         pdf.set_auto_page_break(True)
         pdf.add_font(font_name, fname=font_path)
         pdf.set_font(font_name)
         
-    w = args.get('w', output_dict.get('w_def'))
-    h = args.get('h', output_dict.get('h_def'))
+    w = args.get('w', write_dict.get('w_def'))
+    h = args.get('h', write_dict.get('h_def'))
     # add new page
     pdf.add_page()
 

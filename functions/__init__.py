@@ -25,13 +25,13 @@ tesseract_dict = {
     'psm' : 3,          # default page segmentation mode in tesseract
     'oem' : 1,          # default OCR engine mode for tesseract
 }
-"""tesseract_dict (dict): dictionary of default tesseract options parameters"""
+"""tesseract_dict (dict): dictionary of default tesseract options and parameters"""
 
 
-output_dict = {
+write_dict = {
     'font_path_def': 'fonts/AbyssinicaSIL-Regular.ttf', # default font path (for writing to pdf)
     'font_name_def': 'Abyssinica SIL',                  # default font name (for writing to pdf & MS word)
     'w_def' : 0,            # default line width (for writing to pdf). 0 means use all available width
     'h_def' : 5             # default line spacing (for writing to pdf)
 }
-"""tesseract_dict (dict): dictionary of default tesseract options parameters"""
+"""write_dict (dict): dictionary of default ouput file writing options and parameters"""
