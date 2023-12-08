@@ -11,6 +11,7 @@ from functions import defaults_dict, tesseract_dict, write_dict
 from functions.image_ocr import image_ocr
 from functions.pdf_ocr import pdf_ocr
 from functions.parse_input_cmd import parse_ocr_cmd, parse_default_cmd
+from functions.set_defaults import set_defaults
 from functions.validate_input_cmd import validate_parsed_ocr_cmd
 from functions.validate_input_cmd import validate_parsed_defalt_cmd
 from pprint import pprint
@@ -179,9 +180,8 @@ class OCRCommand(cmd.Cmd):
                 print('\n----VALIDATE_ARGS RETURN-------')
                 pprint(validated_args)
                 print('--------------------------------')
-
-            # if validated_args:
-            #     set_defaults(**validated_args)
+                if validated_args:
+                    set_defaults(**validated_args)
 
 if __name__ == '__main__':
     OCRCommand().cmdloop()

@@ -1,14 +1,6 @@
 #!/usr/bin/env python3
 """
 Contains a function to validate parsed user input.
-
-Attributes:
-    INPUT_DIR_DEFAULT_IMG (str): default input directory for images.
-    INPUT_DIR_DEFAULT_PDF (str): default input directory for pdfs.
-    OUTPUT_DIR_DEFAULT (str): default output directory.
-    OUTPUT_MODES (list): available output modes.
-    OUTPUT_MODE_DEFAULT (str): default output mode.
-    IMAGE_EXTENSIONS (list): list of valid image extensions.
 """
 from os import listdir, path
 from pprint import pprint
@@ -24,7 +16,7 @@ def validate_parsed_ocr_cmd(line, **args):
         * if command has valid syntax
         * if required arguments exist and are valid
         * if proper combination of arguments and options are provided
-        * if valid input file/s exist
+        * if valid input file/s and input directory exist
         * if output folder exists
 
     Args:
@@ -231,8 +223,8 @@ def validate_parsed_defalt_cmd(line, **args):
         * if command has valid syntax
         * if required arguments exist and are valid
         * if proper combination of arguments and options are provided
-        * if valid input file/s exist
-        * if output folder exists
+        * if valid input, output, font and training directories exist
+        * if training directory contains valid training data file
 
     Args:
         line (str): input from command line.

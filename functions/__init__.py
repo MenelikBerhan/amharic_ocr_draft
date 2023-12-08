@@ -22,7 +22,7 @@ defaults_dict = {
 
 
 tesseract_dict = {
-    'training_dir_def': '/home/menelikberhan/amharic_ocr/training_data_new',   # default tesseract training data directory
+    'training_dir_def': 'training_data_new',   # default tesseract training data directory
     'lang_def': 'amh',      # default language for OCR
     'psm_def' : 3,          # default page segmentation mode in tesseract
     'oem_def' : 1,          # default OCR engine mode for tesseract
