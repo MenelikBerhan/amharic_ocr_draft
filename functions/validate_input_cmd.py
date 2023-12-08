@@ -1,37 +1,22 @@
 #!/usr/bin/env python3
 """
 Contains a function to validate parsed user input.
-
-Attributes:
-    INPUT_DIR_DEFAULT_IMG (str): default input directory for images.
-    INPUT_DIR_DEFAULT_PDF (str): default input directory for pdfs.
-    OUTPUT_DIR_DEFAULT (str): default output directory.
-    OUTPUT_MODES (list): available output modes.
-    OUTPUT_MODE_DEFAULT (str): default output mode.
-    IMAGE_EXTENSIONS (list): list of valid image extensions.
 """
 from os import listdir, path
 from pprint import pprint
+from . import defaults_dict, tesseract_dict, write_dict
 
-
-INPUT_DIR_DEFAULT_IMG = 'test_files/images/'
-INPUT_DIR_DEFAULT_PDF = 'test_files/pdfs/'
-OUTPUT_DIR_DEFAULT = 'test_files/outputs/'
-OUTPUT_MODES = ['print', 'txt', 'docx', 'pdf']
-OUTPUT_MODE_DEFAULT = 'print'
-IMAGE_EXTENSIONS = ['png', 'jpeg', 'jpg']
 
 # TODO break up function into parts based on what it validates
-# TODO CHECK WHEN does input_file_type == None ??
 # TODO for input output file/dir in current working directory
     # For now must prefix with './'
 
-def validate_parsed_cmd(line, **args):
+def validate_parsed_ocr_cmd(line, **args):
     """Validates user input command by checking:
         * if command has valid syntax
         * if required arguments exist and are valid
         * if proper combination of arguments and options are provided
-        * if valid input file/s exist
+        * if valid input file/s and input directory exist
         * if output folder exists
 
     Args:
@@ -77,6 +62,19 @@ def validate_parsed_cmd(line, **args):
             print('*** Argument Error: input directory passed while input file/s contain path')
             return (None)
 
+
+    # ========= Get default params from dict ====================
+
+    IMAGE_EXTENSIONS = defaults_dict.get('image_extensions')
+    OUTPUT_MODES = defaults_dict.get('output_modes')
+    INPUT_DIR_DEFAULT_IMG = defaults_dict.get('input_dir_def_img')
+    INPUT_DIR_DEFAULT_PDF = defaults_dict.get('input_dir_def_pdf')
+    OUTPUT_DIR_DEFAULT = defaults_dict.get('output_dir_def')
+    OUTPUT_MODE_DEFAULT = defaults_dict.get('output_mode_def')
+
+    # ===========================================================
+
+
     input_file_type = args.get('input_file_type')
     # Check if input_file/s exist their extensions are of the same input type and
     # matches input_file_type: (.pdf for pdf) and (.png, .jpeg, .jpg for image)
@@ -104,6 +102,8 @@ def validate_parsed_cmd(line, **args):
 
     # check if output file is passed with valid extension
     # and if extension matches any arg passed with -m
+    # TODO flag commands like `1.png 3.png -o test.pdf`
+    # Now 1.png is used as single input file & 3.png ignored
     if output_file:
         ouput_extension = output_file.split('.')[-1]
         if (ouput_extension not in OUTPUT_MODES):
@@ -215,4 +215,141 @@ def validate_parsed_cmd(line, **args):
 
         join: set to True if output_file. (else unaltered)
     """
+    return (result)
+
+
+def validate_parsed_defalt_cmd(line, **args):
+    """Validates user input for `defalut` command by checking:
+        * if command has valid syntax
+        * if required arguments exist and are valid
+        * if proper combination of arguments and options are provided
+        * if valid input, output, font and training directories exist
+        * if training directory contains valid training data file
+
+    Args:
+        line (str): input from command line.
+        **args (dict): input parsed into dict using argparse.
+
+    Returns:
+        dict: If successful a validated keyword dictionary, else None.
+
+    Raises:
+    """
+    
+    # get params. all values, if not None, are list of one
+    input_directory_img = args.get('input_directory_img')
+    if input_directory_img:
+        input_directory_img = input_directory_img[0]
+        if not path.exists(input_directory_img):
+            print("*** Input Error: image input directory '{}' does not exist".format(input_directory_img))
+            return (None)
+        if not path.isdir(input_directory_img):
+            print("*** Input Error: image input directory '{}' is not a directory".format(input_directory_img))
+            return (None)
+        # TODO check if images exist
+
+    input_directory_pdf = args.get('input_directory_pdf')
+    if input_directory_pdf:
+        input_directory_pdf = input_directory_pdf[0]
+        if not path.exists(input_directory_pdf):
+            print("*** Input Error: pdf input directory '{}' does not exist".format(input_directory_pdf))
+            return (None)
+        if not path.isdir(input_directory_pdf):
+            print("*** Input Error: pdf input directory '{}' is not a directory".format(input_directory_pdf))
+            return (None)
+        # TODO check if pdfs exist
+
+    output_directory = args.get('output_directory')
+    if output_directory:
+        output_directory = output_directory[0]
+        if not path.exists(output_directory):
+            print("*** Input Error: pdf input directory '{}' does not exist".format(output_directory))
+            return (None)
+        if not path.isdir(output_directory):
+            print("*** Input Error: pdf input directory '{}' is not a directory".format(output_directory))
+            return (None)
+
+    output_mode = args.get('output_mode')   # checked for valid values by argparse
+    if output_mode:
+        output_mode = output_mode[0]
+
+
+    font_name = args.get('font_name')
+    if font_name:
+        font_name = font_name[0]
+    # TODO list available fonts in fonts directory
+    font_path = args.get('font_path')
+    if font_path:
+        font_path = font_path[0]
+        if not path.exists(font_path):
+            print("*** Input Error: font path '{}' does not exist".format(font_path))
+            return (None)
+        # TODO if font file is valid
+
+    height = args.get('height') # checked for type=int by argparse
+    if height:
+        height = height[0]
+    width = args.get('width')   # checked for type=int by argparse
+    if width:
+        width = width[0]
+
+
+    training_dir = args.get('training_dir')
+    if training_dir:
+        training_dir = training_dir[0]
+        if not path.exists(training_dir):
+            print("*** Input Error: training directory '{}' does not exist".format(training_dir))
+            return (None)
+        if not path.isdir(training_dir):
+            print("*** Input Error: training directory '{}' is not a directory".format(training_dir))
+            return (None)
+        # TODO if training directory contains valid training file
+
+    lang = args.get('lang')     # checked for valid values by argparse
+    if lang:
+        lang = lang[0]
+    psm = args.get('psm')       # checked for valid values by argparse
+    if psm:
+        psm = psm[0]
+    oem = args.get('oem')       # checked for valid values by argparse
+    if oem :
+        oem = oem[0]
+
+    # check if training directory contains valid training file
+    # file name should be lang.traineddata
+    if training_dir:
+        train_lang = lang if lang else tesseract_dict.get('lang_def')
+        train_name = train_lang + '.traineddata'
+        if train_name not in listdir(training_dir):
+            print("*** Input Error: training directory '{}' does not contain valid training data".format(training_dir))
+            print("*** Training file should be named: '{}'".format(train_name))
+            return (None)
+
+    """     print('font-name {}, font-path {}, height {}, width {}'.format(font_name, font_path, height, width))
+
+    print('lang {}, psm {}, oem {}'.format(lang, psm, oem))
+
+    print('img dir {}, pdf dir {}, out dir {}, mode {}'.format(input_directory_img, input_directory_pdf, output_directory, output_mode)) """
+
+    # by now all params set, either from user input or from default
+    result = {
+        'defaults_dict': {
+            'input_dir_def_img': input_directory_img,
+            'input_dir_def_pdf': input_directory_pdf,
+            'output_dir_def': output_directory,
+            'output_mode_def': output_mode},
+
+        'tesseract_dict': {
+            'training_dir_def': training_dir,
+            'lang_def': lang,
+            'psm_def': psm,
+            'oem_def': oem},
+
+        'write_dict': {
+            'font_name_def': font_name,
+            'font_path_def': font_path,
+            'height_def': height,
+            'width_def': width}
+        }
+
     return (result)
