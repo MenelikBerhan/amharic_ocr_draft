@@ -308,6 +308,9 @@ def validate_parsed_defalt_cmd(line, **args):
         if not path.exists(training_dir):
             print("*** Input Error: training directory '{}' does not exist".format(training_dir))
             return (None)
+        if not path.isdir(training_dir):
+            print("*** Input Error: training directory '{}' is not a directory".format(training_dir))
+            return (None)
         # TODO if training directory contains valid training file
 
     lang = args.get('lang')     # checked for valid values by argparse
@@ -320,6 +323,16 @@ def validate_parsed_defalt_cmd(line, **args):
     if oem :
         oem = oem[0]
 
+    # check if training directory contains valid training file
+    # file name should be lang.traineddata
+    if training_dir:
+        train_lang = lang if lang else tesseract_dict.get('lang_def')
+        train_name = train_lang + '.traineddata'
+        if train_name not in listdir(training_dir):
+            print("*** Input Error: training directory '{}' does not contain valid training data".format(training_dir))
+            print("*** Training file should be named: '{}'".format(train_name))
+            return (None)
+
     """     print('font-name {}, font-path {}, height {}, width {}'.format(font_name, font_path, height, width))
 
     print('lang {}, psm {}, oem {}'.format(lang, psm, oem))
@@ -328,19 +341,23 @@ def validate_parsed_defalt_cmd(line, **args):
 
     # by now all params set, either from user input or from default
     result = {
-        'font_name_def': font_name,
-        'font_path_def': font_path,
-        'height_def': height,
-        'width_def': width,
+        'defaults_dict': {
+            'input_dir_def_img': input_directory_img,
+            'input_dir_def_pdf': input_directory_pdf,
+            'output_dir_def': output_directory,
+            'output_mode_def': output_mode},
 
-        'lang_def': lang,
-        'psm_def': psm,
-        'oem_def': oem,
+        'tesseract_dict': {
+            'training_dir_def': training_dir,
+            'lang_def': lang,
+            'psm_def': psm,
+            'oem_def': oem},
 
-        'input_dir_def_img': input_directory_img,
-        'input_dir_def_pdf': input_directory_pdf,
-        'output_dir_def': output_directory,
-        'output_mode_def': output_mode
+        'write_dict': {
+            'font_name_def': font_name,
+            'font_path_def': font_path,
+            'height_def': height,
+            'width_def': width}
         }
 
     return (result)
