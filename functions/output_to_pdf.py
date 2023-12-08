@@ -37,8 +37,8 @@ def write_to_pdf(text, output_file_path, pdf=None, **args):
         pdf.add_font(font_name, fname=font_path)
         pdf.set_font(font_name)
         
-    w = args.get('w', write_dict.get('w_def'))
-    h = args.get('h', write_dict.get('h_def'))
+    w = args.get('w', write_dict.get('width_def'))
+    h = args.get('h', write_dict.get('height_def'))
     # add new page
     pdf.add_page()
 

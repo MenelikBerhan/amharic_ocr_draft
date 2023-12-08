@@ -12,7 +12,7 @@ Attributes:
 """
 from os import listdir, path
 from pprint import pprint
-from . import defaults_dict
+from . import defaults_dict, tesseract_dict, write_dict
 
 
 # TODO break up function into parts based on what it validates
@@ -222,4 +222,127 @@ def validate_parsed_cmd(line, **args):
 
         join: set to True if output_file. (else unaltered)
     """
+    return (result)
+
+
+def validate_parsed_defalt_cmd(line, **args):
+    """Validates user input for `defalut` command by checking:
+        * if command has valid syntax
+        * if required arguments exist and are valid
+        * if proper combination of arguments and options are provided
+        * if valid input file/s exist
+        * if output folder exists
+
+    Args:
+        line (str): input from command line.
+        **args (dict): input parsed into dict using argparse.
+
+    Returns:
+        dict: If successful a validated keyword dictionary, else None.
+
+    Raises:
+    """
+    
+    # get params, and if None set to defaults. all values, if not None, are list of one
+    input_directory_img = args.get('input_directory_img')
+    if input_directory_img:
+        input_directory_img = input_directory_img[0]
+        if not path.exists(input_directory_img):
+            print("*** Input Error: image input directory '{}' does not exist".format(input_directory_img))
+            return (None)
+        if not path.isdir(input_directory_img):
+            print("*** Input Error: image input directory '{}' is not a directory".format(input_directory_img))
+            return (None)
+        # TODO check if images exist
+    else:
+        input_directory_img = defaults_dict.get('input_dir_def_img')
+
+    input_directory_pdf = args.get('input_directory_pdf')
+    if input_directory_pdf:
+        input_directory_pdf = input_directory_pdf[0]
+        if not path.exists(input_directory_pdf):
+            print("*** Input Error: pdf input directory '{}' does not exist".format(input_directory_pdf))
+            return (None)
+        if not path.isdir(input_directory_pdf):
+            print("*** Input Error: pdf input directory '{}' is not a directory".format(input_directory_pdf))
+            return (None)
+        # TODO check if pdfs exist
+    else:
+        input_directory_pdf = defaults_dict.get('input_dir_def_pdf')
+
+    output_directory = args.get('output_directory')
+    if output_directory:
+        output_directory = output_directory[0]
+        if not path.exists(output_directory):
+            print("*** Input Error: pdf input directory '{}' does not exist".format(output_directory))
+            return (None)
+        if not path.isdir(output_directory):
+            print("*** Input Error: pdf input directory '{}' is not a directory".format(output_directory))
+            return (None)
+    else:
+        output_directory = defaults_dict.get('output_dir_def')
+
+    output_mode = args.get('output_mode')   # checked for valid values by argparse
+    output_mode = output_mode[0] if output_mode else defaults_dict.get('output_mode_def')
+
+
+    font_path = args.get('font_path')
+    if font_path:
+        font_path = font_path[0]
+        if not path.exists(font_path):
+            print("*** Input Error: font path '{}' does not exist".format(font_path))
+            return (None)
+        # TODO if font file is valid
+    else:
+        font_path = write_dict.get('font_path_def')
+
+    font_name = args.get('font_name')
+    font_name = font_name[0] if font_name else write_dict.get('font_name_def')
+    height = args.get('height') # checked for type=int by argparse
+    height = height[0] if height else write_dict.get('height_def')
+    width = args.get('width')   # checked for type=int by argparse
+    width = width[0] if width else write_dict.get('width_def')
+
+
+    training_dir = args.get('training_dir')
+    if training_dir:
+        training_dir = training_dir[0]
+        if not path.exists(training_dir):
+            print("*** Input Error: training directory '{}' does not exist".format(training_dir))
+            return (None)
+        # TODO if training directory is valid
+    else:
+        training_dir = tesseract_dict.get('training_dir_def')
+
+    lang = args.get('lang')     # checked for valid values by argparse
+    lang = lang[0] if lang else tesseract_dict.get('lang_def')
+    psm = args.get('psm')       # checked for valid values by argparse
+    psm = psm[0] if psm else tesseract_dict.get('psm_def')
+    oem = args.get('oem')       # checked for valid values by argparse
+    oem = oem[0] if oem else tesseract_dict.get('oem_def')
+
+
+    """     print('font-name {}, font-path {}, height {}, width {}'.format(font_name, font_path, height, width))
+
+    print('lang {}, psm {}, oem {}'.format(lang, psm, oem))
+
+    print('img dir {}, pdf dir {}, out dir {}, mode {}'.format(input_directory_img, input_directory_pdf, output_directory, output_mode)) """
+
+    # by now all params set, either from user input or from default
+    result = {
+        'font_name': font_name,
+        'font_path': font_path,
+        'height': height,
+        'width': width,
+
+        'lang': lang,
+        'psm': psm,
+        'oem': oem,
+
+        'input_directory_img': input_directory_img,
+        'input_directory_pdf': input_directory_pdf,
+        'output_directory': output_directory,
+        'output_mode': output_mode
+        }
+    
     return (result)

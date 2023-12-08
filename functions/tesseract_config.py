@@ -16,14 +16,14 @@ def config_tesseract(**args):
     training_folder = args.get('training_folder')  # TODO check if it contains training data
 
     # TRAINING DATA directory (if not provieded uses tesseracts default dir)
-    environ['TESSDATA_PREFIX'] = training_folder if training_folder else tesseract_dict.get('TRAINING_DATA_DIR')
+    environ['TESSDATA_PREFIX'] = training_folder if training_folder else tesseract_dict.get('training_dir_def')
 
 
     # config tesseract options
     # TODO add config params to **args from calling function & handle here
-    lang = args.get('lang', tesseract_dict.get('lang'))
-    psm = args.get('psm', tesseract_dict.get('psm'))        # page segmentation mode (1 & 3 for full page). refer doc.
-    oem = args.get('oem', tesseract_dict.get('oem'))        # OCR engine mode. refer doc
+    lang = args.get('lang', tesseract_dict.get('lang_def'))
+    psm = args.get('psm', tesseract_dict.get('psm_def'))        # page segmentation mode (1 & 3 for full page). refer doc.
+    oem = args.get('oem', tesseract_dict.get('oem_def'))        # OCR engine mode. refer doc
     options = """
     -l {} --psm {} --oem {}
     -c load_system_dawg=false
