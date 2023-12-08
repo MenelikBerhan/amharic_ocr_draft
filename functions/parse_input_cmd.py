@@ -33,10 +33,7 @@ def parse_ocr_cmd(line):
     parser = ArgumentParser(
         prog='ocr',
         allow_abbrev=False, # to avoid recognition of abbreviated long options
-        # argument_default=argparse.SUPPRESS,  # to globally suppress attribute creation for optional arguments and options (nargs='?')
-        # exit_on_error=False, # prevent exit on errors (not available in python 3.8)
         usage=argparse.SUPPRESS, # to suppress usage display
-        # usage=usage
         add_help=False  # so that -h flag doesn't display argparse help
         )
 
@@ -85,8 +82,6 @@ def parse_default_cmd(line):
         add_help=False  # so that -h flag doesn't display argparse help
         )
 
-    # TODO validate argument values in a separate function
-
     parser.add_argument('-ii', '--in-dir-image', dest='input_directory_img', required=False, nargs=1, metavar='input_dir_default_img', help='Set default input directory for images')
 
     parser.add_argument('-ip', '--in-dir-pdf', dest='input_directory_pdf', required=False, nargs=1, metavar='input_dir_default_pdf', help='Set default input directory for pdfs')
@@ -113,6 +108,9 @@ def parse_default_cmd(line):
 
     try:
         args = parser.parse_args(split(line))
+        if args is None:   # default command followed by invalid argument
+            print('*** Argument Error: invalid argument: {}'.format(line))
+            return(None)
         return(vars(args))
     except Exception as e:
         print('*** Argument Error:', e)

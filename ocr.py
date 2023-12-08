@@ -7,14 +7,14 @@ Attributes:
 
 """
 import cmd
+from functions import defaults_dict, tesseract_dict, write_dict
 from functions.image_ocr import image_ocr
 from functions.pdf_ocr import pdf_ocr
 from functions.parse_input_cmd import parse_ocr_cmd, parse_default_cmd
-from functions.validate_input_cmd import validate_parsed_cmd
+from functions.validate_input_cmd import validate_parsed_ocr_cmd
 from functions.validate_input_cmd import validate_parsed_defalt_cmd
 from pprint import pprint
 from shlex import split
-from functions import defaults_dict, tesseract_dict, write_dict
 
 usage = """
 Usage: [image|pdf] INPUT_FILE [OUTPUT_FILE] [OPTION]...
@@ -130,7 +130,7 @@ class OCRCommand(cmd.Cmd):
         print('--------------------------------')
         if not args:
             return
-        validated_args = validate_parsed_cmd('image ' + arg, **args)
+        validated_args = validate_parsed_ocr_cmd('image ' + arg, **args)
 
         print('\n----VALIDATE_ARGS RETURN-------')
         pprint(validated_args)
@@ -148,7 +148,7 @@ class OCRCommand(cmd.Cmd):
         print('--------------------------------')
         if not args:
             return
-        validated_args = validate_parsed_cmd('pdf ' + arg, **args)
+        validated_args = validate_parsed_ocr_cmd('pdf ' + arg, **args)
 
         print('\n----VALIDATE_ARGS RETURN-------')
         pprint(validated_args)
@@ -158,31 +158,30 @@ class OCRCommand(cmd.Cmd):
             pdf_ocr(**validated_args)
 
     def do_default(self, arg):
-        """Sets or prints default parameters."""
-        # TODO add defaults setting feature
+        """Sets default params or prints default parameters."""
+        # TODO add defaults setter , defaults reseter feature
         # Parse arg and set dicts accordingly
         if not arg:
-            print('============ Input and Output Defaults ============')
+            print('============ Input and Output Defaults ============\n')
             pprint(defaults_dict)
-            print('\n============ Tesseract Params Defaults ============')
+            print('\n============ Tesseract Params Defaults ============\n')
             pprint(tesseract_dict)
-            print('\n============ Ouput file Writing Defaults ============')
+            print('\n============ Ouput file Writing Defaults ============\n')
             pprint(write_dict)
         else:
             args = parse_default_cmd(arg)
             print('\n----PARSE_INPUT RETURN-------')
             pprint(args)
             print('--------------------------------')
-            if args is None:
-                print('*** Argument Error: invalid argument: {}'.format(arg))
-            else:
+
+            if args is not None:
                 validated_args = validate_parsed_defalt_cmd('default ' + arg, **args)
-            print('\n----VALIDATE_ARGS RETURN-------')
-            pprint(validated_args)
-            print('--------------------------------')
+                print('\n----VALIDATE_ARGS RETURN-------')
+                pprint(validated_args)
+                print('--------------------------------')
 
             # if validated_args:
-            #     pdf_ocr(**validated_args)
+            #     set_defaults(**validated_args)
 
 if __name__ == '__main__':
     OCRCommand().cmdloop()
