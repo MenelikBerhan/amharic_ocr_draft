@@ -8,7 +8,7 @@ from .process_image import process_image_simple, process_image_detailed
 from .tesseract_config import config_tesseract
 
 
-def image_ocr(**args):
+def ocr_image(**args):
     """
     Performs OCR on images and depending on user input, output to either:
         * standard output (default),

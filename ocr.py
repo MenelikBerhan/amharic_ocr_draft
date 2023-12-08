@@ -8,8 +8,8 @@ Attributes:
 """
 import cmd
 from functions import defaults_dict, tesseract_dict, write_dict
-from functions.image_ocr import image_ocr
-from functions.pdf_ocr import pdf_ocr
+from functions.ocr_image import ocr_image
+from functions.ocr_pdf import ocr_pdf
 from functions.parse_input_cmd import parse_ocr_cmd, parse_default_cmd
 from functions.set_defaults import set_defaults
 from functions.validate_input_cmd import validate_parsed_ocr_cmd
@@ -138,7 +138,7 @@ class OCRCommand(cmd.Cmd):
         print('--------------------------------')
 
         if validated_args:
-            image_ocr(**validated_args)
+            ocr_image(**validated_args)
 
     def do_pdf(self, arg):
         """Performs an OCR on pdfs."""
@@ -156,7 +156,7 @@ class OCRCommand(cmd.Cmd):
         print('--------------------------------')
 
         if validated_args:
-            pdf_ocr(**validated_args)
+            ocr_pdf(**validated_args)
 
     def do_default(self, arg):
         """Sets default params or prints default parameters."""

@@ -12,7 +12,7 @@ from .output_to_txt import write_to_txt
 from .tesseract_config import config_tesseract
 
 
-def pdf_ocr(**args):
+def ocr_pdf(**args):
     """
     Performs OCR on pdfs and depending on user input, output to either:
         * standard output (default),
