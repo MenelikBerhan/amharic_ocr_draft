@@ -7,6 +7,7 @@ Attributes:
     tesseract_dict (dict): dictionary of default tesseract options and parameters
     output_dict (dict): dictionary of default params for writing to output files
 """
+# TODO save defaults in text file(json form) for persistence
 
 defaults_dict = {
     'INPUT_DIR_DEFAULT_IMG': 'test_files/images/',      # default directory for image input files
@@ -32,6 +33,6 @@ write_dict = {
     'font_path_def': 'fonts/AbyssinicaSIL-Regular.ttf', # default font path (for writing to pdf)
     'font_name_def': 'Abyssinica SIL',                  # default font name (for writing to pdf & MS word)
     'w_def' : 0,            # default line width (for writing to pdf). 0 means use all available width
-    'h_def' : 5             # default line spacing (for writing to pdf)
+    'h_def' : 5             # default line height (for writing to pdf)
 }
 """write_dict (dict): dictionary of default ouput file writing options and parameters"""
