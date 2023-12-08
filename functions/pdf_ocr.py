@@ -8,14 +8,9 @@ from os import path
 from .process_image import process_image_simple, process_image_detailed
 from .output_to_docx import write_to_docx
 from .output_to_pdf import write_to_pdf
+from .output_to_txt import write_to_txt
 from .tesseract_config import config_tesseract
 
-INPUT_DIR_DEFAULT_IMG = 'test_files/images/'
-INPUT_DIR_DEFAULT_PDF = 'test_files/pdfs/'
-OUTPUT_DIR_DEFAULT = 'test_files/outputs/'
-OUTPUT_MODES = ['print', 'txt', 'docx', 'pdf']
-OUTPUT_MODE_DEFAULT = 'print'
-IMAGE_EXTENSIONS = ['png', 'jpeg', 'jpg']
 
 def pdf_ocr(**args):
     """
@@ -44,9 +39,19 @@ def pdf_ocr(**args):
 
     join = args.get('join')
 
-    output_document = None  # a docx Documnet object or a pdf Object from FPDF
+    # set output file from input pdfs if join and output file not passed
+    if (join and not output_file and output_mode != 'print'):
+        output_file = ''
+        for in_pdf in input_pdfs:
+            pdf_end = path.splitext(in_pdf)[0]  # before extension
+            pdf_end = path.split(pdf_end)[1]     # after last '/'
+            output_file += pdf_end + '-'
+        output_file += 'joined_output.' + output_mode
 
+    # set output file path if output file
     output_file_path = output_path_prefix + output_file if output_file else None
+
+    output_document = None  # a docx Documnet object or a pdf Object from FPDF
 
     # to count total pages
     total_pages = 0
@@ -64,17 +69,19 @@ def pdf_ocr(**args):
 
         pdf_file_path = input_path_prefix + input_pdf
 
-        # set output file from input file name, if not passed from command line
-        # if not join, output file name is created from input name for each
-        # TODO if join, for multiple inputs , joined output name is created from first file.
+        # set output file path from input file name for each image.
+        # Used when join is False (if True output_file is already set or passed)
         if not output_file and output_mode != 'print':
-                output_file_end = path.splitext(pdf_file_path)[0]  # before extension
-                output_file_end = path.split(output_file_end)[1]     # after last '/'
-                output_file_end += '_output.' + output_mode
-                output_file_path = output_path_prefix + output_file_end
+            output_file_end = path.splitext(pdf_file_path)[0]  # before extension
+            output_file_end = path.split(output_file_end)[1]     # after last '/'
+            output_file_end += '-output.' + output_mode
+            output_file_path = output_path_prefix + output_file_end
 
         # to check if this is last pdf for join. used to set save to True
         last_pdf = pdf_index == len(input_pdfs) - 1
+
+        # display pdf processing start
+        print("Processing pdf file no. {}: '{}'".format(pdf_index + 1, pdf_file_path))
 
         # read pdf
         pages = convert_from_path(pdf_file_path)
@@ -82,8 +89,6 @@ def pdf_ocr(**args):
         # reset total_pages for not join
         if not join:
             total_pages = 0
-
-        print("Processing pdf no. {}: '{}'".format(pdf_index + 1, pdf_file_path))
 
         # iterate over each pdf's pages
         for page_index, page in enumerate(pages):
@@ -128,7 +133,11 @@ def pdf_ocr(**args):
 
                 # base dict to pass to txt, docx or pdf writer functions
                 base_dict = {
-                    'save': save    # add common params here (font, layout ...)
+                    'save': save,    # add common params here (font, layout ...)
+                    'join': join,
+                    'pdf_index': pdf_index,
+                    'page_index': page_index,
+                    'input_file_type': 'pdf'
                 }
 
                 # =============== OUTPUT based on output_mode ==============
@@ -138,10 +147,10 @@ def pdf_ocr(**args):
                         print("OUTPUT for pdf file: '{}'".format(pdf_file_path))
                     print(text + footer)
 
-                elif output_mode == 'txt':  # TODO move to separate function
-                    write_mode = 'a' if page_index else 'w'  # truncate for 1st page, then append
-                    with open(output_file_path, write_mode, encoding='utf-8') as file:
-                        file.write(text + footer)
+                elif output_mode == 'txt':
+                    params = base_dict  # add specific params here
+                    text += footer
+                    output_document = write_to_txt(text, output_file_path, output_document, **params)
 
                 elif output_mode == 'docx':
                     params = base_dict  # add specific params here
@@ -149,7 +158,7 @@ def pdf_ocr(**args):
                     output_document = write_to_docx(text, output_file_path, output_document, **params)
 
                 elif output_mode == 'pdf':
-                    params = base_dict
+                    params = base_dict  # add specific params here
                     text += footer
                     output_document = write_to_pdf(text, output_file_path, output_document, **params)
         
@@ -157,6 +166,6 @@ def pdf_ocr(**args):
         total_pages += len(pages)
         # if save display successful OCR summary
         if save:
-            saved_to = 'stdout' if output_mode == 'print' else output_file_path
+            saved_to = 'stdout' if output_mode == 'print' else path.abspath(output_file_path)
             print("Successfuly OCR'ed {} no. of pages and wrote to '{}'\n"
                 .format(total_pages, saved_to))

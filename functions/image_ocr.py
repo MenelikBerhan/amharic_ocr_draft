@@ -3,15 +3,9 @@ import pytesseract as pts
 from os import path
 from .output_to_docx import write_to_docx
 from .output_to_pdf import write_to_pdf
+from .output_to_txt import write_to_txt
 from .process_image import process_image_simple, process_image_detailed
 from .tesseract_config import config_tesseract
-
-INPUT_DIR_DEFAULT_IMG = 'test_files/images/'
-INPUT_DIR_DEFAULT_PDF = 'test_files/pdfs/'
-OUTPUT_DIR_DEFAULT = 'test_files/outputs/'
-OUTPUT_MODES = ['print', 'txt', 'docx', 'pdf']
-OUTPUT_MODE_DEFAULT = 'print'
-IMAGE_EXTENSIONS = ['png', 'jpeg', 'jpg']
 
 
 def image_ocr(**args):
@@ -41,17 +35,35 @@ def image_ocr(**args):
 
     join = args.get('join')
 
-    output_document = None  # a docx Documnet object or a pdf Object from FPDF
+    # set output file from input images if join and output file not passed
+    if (join and not output_file and output_mode != 'print'):
+        output_file = ''
+        for img in input_images:
+            img_end = path.splitext(img)[0]  # before extension
+            img_end = path.split(img_end)[1]     # after last '/'
+            output_file += img_end + '-'
+        output_file += 'joined_output.' + output_mode
 
+    # set output file path if output file
     output_file_path = output_path_prefix + output_file if output_file else None
+
+    output_document = None  # a docx Documnet object, or a pdf Object from FPDF, or a buffer
 
     # sets environ variables and returns tesseract config string
     # TODO add parameters to args or create new dict
     options = config_tesseract(**args)
 
     for i, image in enumerate(input_images):
+        
+        # if not join create new output_doc for each image, else use one output_doc for all
+        # TODO check system strain when join is True
+        if not join:
+            output_document = None
 
         image_file_path = input_path_prefix + image
+
+        # display image processing start
+        print("Processing image file no. {}: '{}'".format(i + 1, image_file_path))
 
         # process image
         # TODO add global variable for simple/detailed choice
@@ -64,13 +76,12 @@ def image_ocr(**args):
         # TODO check system strain for too many image inputs with join
         save = not join or (i == len(input_images) - 1)
 
-        # set output file from input file name, if not passed from command line
-        # TODO for multiple inputs w/o output file, joined output name is
-        # created from first input file name
+        # set output file path from input file name for each image.
+        # Used when join is False (if True output_file is already set or passed)
         if not output_file and output_mode != 'print':
             output_file_end = path.splitext(image_file_path)[0]  # before extension
             output_file_end = path.split(output_file_end)[1]     # after last '/'
-            output_file_end += '_output.' + output_mode
+            output_file_end += '-output.' + output_mode
             output_file_path = output_path_prefix + output_file_end
 
         # to be added after each page if join
@@ -78,7 +89,10 @@ def image_ocr(**args):
 
         # base dict to pass to txt, docx or pdf writer functions
         base_dict = {
-            'save': save    # add common params here (font, layout ...)
+            'save': save,    # add common params here (font, layout ...)
+            'join': join,
+            'page_index': i,
+            'input_file_type': 'image'
         }
 
         # =============== OUTPUT based on output_mode ==============
@@ -88,9 +102,9 @@ def image_ocr(**args):
             print(text + footer)
 
         elif output_mode == 'txt':  # TODO move to separate function
-            write_mode = 'a' if i else 'w'  # truncate for 1st page, then append
-            with open(output_file_path, write_mode, encoding='utf-8') as file:
-                file.write(text + footer)
+            params = base_dict  # add specific params here
+            text += footer
+            output_document = write_to_txt(text, output_file_path, output_document, **params)
 
         elif output_mode == 'docx':
             params = base_dict  # add specific params here
@@ -104,9 +118,9 @@ def image_ocr(**args):
 
         # display successful OCR summary
         if save:
-            saved_to = 'stdout' if output_mode == 'print' else output_file_path
+            saved_to = 'stdout' if output_mode == 'print' else path.abspath(output_file_path)
             total_pages = len(input_images)
-            if join:
+            if join and total_pages > 1:
                 info = "{} images".format(total_pages)
             else:
                 info = "image '{}'".format(image_file_path)
