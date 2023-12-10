@@ -72,7 +72,7 @@ def ocr_image(**args):
 
         # process image
         # TODO add global variable for simple/detailed choice
-        processed_image = process_image_simple(image_file_path)
+        processed_image = process_image_simple(image_file_path, **args)
     
         # other formats image_to_[...] - 'data' with dict option, pdf, box ...
         text = pts.image_to_string(processed_image, config=options)

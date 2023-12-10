@@ -109,73 +109,65 @@ def ocr_pdf(**args):
                 # notify start of scan
                 print('Scanning page {}'.format(page_index + 1))
 
-                # specify format to save in bytes object
+                # specify format of file to save the bytes object
                 page.save(img_stream, format="jpeg")  # test different formats quality?
-
-                """ # if reading and writing from disk (page_loading_mode = 'file')
-                    image_path = "page_image.jpg"
-                    page.save(image_path, "jpg")
-                    image = cv2.imread(image_path) """
-
                 img_stream.seek(0)
-                
-                # load image with cv2 using numpy on buffer for page_loading_mode='bytes' 
-                image = cv2.imdecode(np.frombuffer(img_stream.read(), np.uint8), 1)
+
+                """ # to write image to file and path image path to process_image
+                image_file_path = "temp/page_{}_image.jpg".format(page_index)
+                page.save(image_file_path, "jpeg") """
                 
                 # process image
                 # TODO add global variable for simple/detailed choice
-                # processed_image = process_image_simple(image_file_path)
+                processed_image = process_image_simple(img_stream, **args)
 
-                # Temporary
-                processed_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+            # other formats image_to_[...] - 'data' with dict option, pdf, box ...
+            text = pts.image_to_string(processed_image, config=options)
 
-                # other formats image_to_[...] - 'data' with dict option, pdf, box ...
-                text = pts.image_to_string(processed_image, config=options)
+            # find and store average confidence for each page
+            if display_confidence:
+                current_page_conf = ocr_confidence(processed_image, options, **args)
+                curr_pdf_conf_dict[page_index + 1] = current_page_conf
 
-                # find and store average confidence for each page
-                if display_confidence:
-                    current_page_conf = ocr_confidence(processed_image, options, **args)
-                    curr_pdf_conf_dict[page_index + 1] = current_page_conf
+            # save output if this is last page of current pdf and,
+            # not join or join and current pdf is last one in list of pdfs  
+            last_page = page_index == len(pages) - 1
+            save = last_page and (not join or last_pdf)
 
-                # save output if this is last page of current pdf and,
-                # not join or join and current pdf is last one in list of pdfs  
-                last_page = page_index == len(pages) - 1
-                save = last_page and (not join or last_pdf)
+            # to be added after each page
+            # page no. starts from 1 for each pdf file
+            footer = '\n\t\t\t\t\t--- Page {} ---\n\n'.format(page_index + 1)
 
-                # to be added after each page
-                # page no. starts from 1 for each pdf file
-                footer = '\n\t\t\t\t\t--- Page {} ---\n\n'.format(page_index + 1)
+            # base dict to pass to txt, docx or pdf writer functions
+            base_dict = {
+                'save': save,    # add common params here (font, layout ...)
+                'join': join,
+                'pdf_index': pdf_index,
+                'page_index': page_index,
+                'input_file_type': 'pdf'
+            }
 
-                # base dict to pass to txt, docx or pdf writer functions
-                base_dict = {
-                    'save': save,    # add common params here (font, layout ...)
-                    'join': join,
-                    'pdf_index': pdf_index,
-                    'page_index': page_index,
-                    'input_file_type': 'pdf'
-                }
+            # =============== OUTPUT based on output_mode ==============
 
-                # =============== OUTPUT based on output_mode ==============
+            if output_mode == 'print':
+                if page_index == 0:
+                    print("OUTPUT for pdf file: '{}'".format(pdf_file_path))
+                print(text + footer)
 
-                if output_mode == 'print':
-                    if page_index == 0:
-                        print("OUTPUT for pdf file: '{}'".format(pdf_file_path))
-                    print(text + footer)
+            elif output_mode == 'txt':
+                params = base_dict  # add specific params here
+                text += footer
+                output_document = write_to_txt(text, output_file_path, output_document, **params)
 
-                elif output_mode == 'txt':
-                    params = base_dict  # add specific params here
-                    text += footer
-                    output_document = write_to_txt(text, output_file_path, output_document, **params)
+            elif output_mode == 'docx':
+                params = base_dict  # add specific params here
+                text += footer
+                output_document = write_to_docx(text, output_file_path, output_document, **params)
 
-                elif output_mode == 'docx':
-                    params = base_dict  # add specific params here
-                    text += footer
-                    output_document = write_to_docx(text, output_file_path, output_document, **params)
-
-                elif output_mode == 'pdf':
-                    params = base_dict  # add specific params here
-                    text += footer
-                    output_document = write_to_pdf(text, output_file_path, output_document, **params)
+            elif output_mode == 'pdf':
+                params = base_dict  # add specific params here
+                text += footer
+                output_document = write_to_pdf(text, output_file_path, output_document, **params)
         
         # add current pdf confidence dict to confidence dict
         if display_confidence:
