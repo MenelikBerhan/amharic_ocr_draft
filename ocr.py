@@ -93,7 +93,7 @@ class OCRCommand(cmd.Cmd):
             pprint(defaults_dict)
             print('\n============ Tesseract Params Defaults ============\n')
             pprint(tesseract_dict)
-            print('\n============ Ouput file Writing Defaults ============\n')
+            print('\n=========== Ouput file Writing Defaults ===========\n')
             pprint(write_dict)
         else:
             args = parse_default_cmd(arg)
@@ -200,8 +200,8 @@ For tesseract
 -tp, --psm                          set default page segmentation mode.
 -to, --oem                          set default OCR engine mode.
 
-For output file
-===============
+For writing to output file
+==========================
 -fp, --font-path                    set default path to a font file.
 -fn, --font-name                    set default name of font.
  -w, --width                        set line width for output file.
