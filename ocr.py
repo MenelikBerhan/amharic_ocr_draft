@@ -126,16 +126,16 @@ class OCRCommand(cmd.Cmd):
         """Performs an OCR on images."""
         args = parse_ocr_cmd('image ' + arg)
 
-        print('\n----PARSE_INPUT RETURN-------')
-        pprint(args)
-        print('--------------------------------')
+        # print('\n----PARSE_INPUT RETURN-------')
+        # pprint(args)
+        # print('--------------------------------')
         if not args:
             return
         validated_args = validate_parsed_ocr_cmd('image ' + arg, **args)
 
-        print('\n----VALIDATE_ARGS RETURN-------')
-        pprint(validated_args)
-        print('--------------------------------')
+        # print('\n----VALIDATE_ARGS RETURN-------')
+        # pprint(validated_args)
+        # print('--------------------------------')
 
         if validated_args:
             ocr_image(**validated_args)
@@ -144,16 +144,16 @@ class OCRCommand(cmd.Cmd):
         """Performs an OCR on pdfs."""
         args = parse_ocr_cmd('pdf ' + arg)
 
-        print('\n----PARSE_INPUT RETURN-------')
-        pprint(args)
-        print('--------------------------------')
+        # print('\n----PARSE_INPUT RETURN-------')
+        # pprint(args)
+        # print('--------------------------------')
         if not args:
             return
         validated_args = validate_parsed_ocr_cmd('pdf ' + arg, **args)
 
-        print('\n----VALIDATE_ARGS RETURN-------')
-        pprint(validated_args)
-        print('--------------------------------')
+        # print('\n----VALIDATE_ARGS RETURN-------')
+        # pprint(validated_args)
+        # print('--------------------------------')
 
         if validated_args:
             ocr_pdf(**validated_args)
@@ -171,15 +171,15 @@ class OCRCommand(cmd.Cmd):
             pprint(write_dict)
         else:
             args = parse_default_cmd(arg)
-            print('\n----PARSE_INPUT RETURN-------')
-            pprint(args)
-            print('--------------------------------')
+            # print('\n----PARSE_INPUT RETURN-------')
+            # pprint(args)
+            # print('--------------------------------')
 
             if args is not None:
                 validated_args = validate_parsed_defalt_cmd('default ' + arg, **args)
-                print('\n----VALIDATE_ARGS RETURN-------')
-                pprint(validated_args)
-                print('--------------------------------')
+                # print('\n----VALIDATE_ARGS RETURN-------')
+                # pprint(validated_args)
+                # print('--------------------------------')
                 if validated_args:
                     set_defaults(**validated_args)
 
