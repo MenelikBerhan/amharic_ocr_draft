@@ -1,10 +1,6 @@
 #!/usr/bin/env python3
 """
-Command line interface for Ethiopic Text OCR app
-
-Attributes:
-    usage (str): information about image and pdf commands.
-
+Command line interface for Ethiopic Script OCR app
 """
 import cmd
 from functions import defaults_dict, tesseract_dict, write_dict
@@ -17,73 +13,18 @@ from functions.validate_input_cmd import validate_parsed_defalt_cmd
 from pprint import pprint
 from shlex import split
 
-usage = """
-Usage: [image|pdf] INPUT_FILE [OUTPUT_FILE] [OPTION]...
-   or: [image|pdf] -i INPUT_FILE... [-o OUTPUT_FILE] [OPTION]...
-   or: image|pdf -s INPUT_DIR [-o OUTPUT_FILE] [OPTION]...
-
-OCR INPUT_FILE/s and output to OUTPUT_FILE.
-
-OCR INPUT_FILE/s or all image|pdf files in INPUT_DIR,
-and output to OUTPUT_FILE.
-
-Multiple INPUT_FILEs can be passed with the -i flag. All inputs must be
-of the same file type. Types - image [*(.jpeg|.png|.jpg)] or pdf [*.pdf].
-
-Specifying image|pdf prefix is mandatory only when passing INPUT_DIR
-without preceeding INPUT_FILE/s. Otherwise, will be inferred from
-INPUT_FILE/s extention.
-
-If OUTPUT_FILE is passed along with multiple input files (using -i flag)
-and/or with INPUT_DIR (using -s flag), must use the -o flag.
-
-
-Mandatory arguments to long options are mandatory for short options too.
-
--i, --input-files=INPUT_FILE...     pass multiple input files. Must use the -o flag for
-                                    OUTPUT_FILE.
-
--s, --src-dir=INPUT_DIR             specify INPUT_FILE/s' directory. If no INPUT_FILE is
-                                    also passed, must specify image|pdf prefix and will use
-                                    all images|pdfs in INPUT_DIR directory as input files.
-
-                                    If INPUT_FILE/s is/are also passed, and is/are a path
-                                    (contains /), INPUT_DIR will be ignored.
-
-                                    Must use the -o flag for OUTPUT_FILE.
-
--o, --output-file=OUTPUT_FILE       save output with provided file name. Implies -j flag.
-                                    Can pass destination directory by prefixing it to OUTPUT_FILE. 
-
-                                    If OUTPUT_FILE has a valid extention ('.txt'|'.docx'|'.pdf'),
-                                    will implicitly override output file type specified by -m.
-
--d, --dest-dir=OUTPUT_DIR           save output file/s in the specified OUTPUT_DIR directory.
-                                    If OUTPUT_FILE is also passed and is a path (contains /),
-                                    OUTPUT_DIR will be ignored.
-
--j, --join                          output to a single file. If not used when passing multiple
-                                    input files without an OUTPUT_FILE, an output file is created
-                                    for each input file.
-
--m, --mode='print'|'txt'|'pdf'|'docx'                   specify output mode (output file type).
-                                    'print' to stdout (default), 'txt' to text, 'docx' to MSword
-                                    and 'pdf' to pdf file.
-
--v, --verbose                       display details of OCR (Confidence level, total pages ...)
-"""
-
 
 class OCRCommand(cmd.Cmd):
-    """ OCR CLI """
+    """
+    Command line interface for Ethiopic Script OCR app
+    """
     prompt = '(ocr) '
 
     def preloop(self) -> None:
-        # print(usage)
         return super().preloop()
 
     def do_EOF(self, arg):
-        """Exits CLI"""
+        """\nUsage: EOF\nExits the program\n"""
         print()
         return True
 
@@ -92,7 +33,7 @@ class OCRCommand(cmd.Cmd):
         return False
 
     def do_quit(self, arg):
-        """Quit command to exit the program"""
+        """\nUsage: quit\nExits the program\n"""
         return True
 
     def precmd(self, line):
@@ -126,16 +67,9 @@ class OCRCommand(cmd.Cmd):
         """Performs an OCR on images."""
         args = parse_ocr_cmd('image ' + arg)
 
-        # print('\n----PARSE_INPUT RETURN-------')
-        # pprint(args)
-        # print('--------------------------------')
         if not args:
             return
         validated_args = validate_parsed_ocr_cmd('image ' + arg, **args)
-
-        # print('\n----VALIDATE_ARGS RETURN-------')
-        # pprint(validated_args)
-        # print('--------------------------------')
 
         if validated_args:
             ocr_image(**validated_args)
@@ -144,24 +78,16 @@ class OCRCommand(cmd.Cmd):
         """Performs an OCR on pdfs."""
         args = parse_ocr_cmd('pdf ' + arg)
 
-        # print('\n----PARSE_INPUT RETURN-------')
-        # pprint(args)
-        # print('--------------------------------')
         if not args:
             return
         validated_args = validate_parsed_ocr_cmd('pdf ' + arg, **args)
-
-        # print('\n----VALIDATE_ARGS RETURN-------')
-        # pprint(validated_args)
-        # print('--------------------------------')
 
         if validated_args:
             ocr_pdf(**validated_args)
 
     def do_default(self, arg):
         """Sets default params or prints default parameters."""
-        # TODO add defaults setter , defaults reseter feature
-        # Parse arg and set dicts accordingly
+        # TODO add defaults reseter feature
         if not arg:
             print('============ Input and Output Defaults ============\n')
             pprint(defaults_dict)
@@ -171,17 +97,117 @@ class OCRCommand(cmd.Cmd):
             pprint(write_dict)
         else:
             args = parse_default_cmd(arg)
-            # print('\n----PARSE_INPUT RETURN-------')
-            # pprint(args)
-            # print('--------------------------------')
-
             if args is not None:
                 validated_args = validate_parsed_defalt_cmd('default ' + arg, **args)
-                # print('\n----VALIDATE_ARGS RETURN-------')
-                # pprint(validated_args)
-                # print('--------------------------------')
                 if validated_args:
                     set_defaults(**validated_args)
+
+    def help_image(self):
+        """Prints help text for `image` command"""
+        return(self.ocr_help('image'))
+
+    def help_pdf(self):
+        """Prints help text for `pdf` command"""
+        return(self.ocr_help('pdf'))
+
+    def ocr_help(self, input_type):
+        """Prints help text for `image` and `pdf` OCR commands"""
+        usage = """
+Usage: [{input_type}] INPUT_FILE [OUTPUT_FILE] [OPTION]...
+   or: [{input_type}] -i INPUT_FILE... [-o OUTPUT_FILE] [OPTION]...
+   or: {input_type} [{{INPUT_FILE|-i INPUT_FILE...}}] -s INPUT_DIRECTORY [-o OUTPUT_FILE] [OPTION]...
+
+Perform OCR on INPUT_FILE/s and output to OUTPUT_FILE.
+
+Perform OCR on INPUT_FILE/s or on all {input_type} files located
+in INPUT_DIRECTORY, and output to OUTPUT_FILE.
+
+Multiple INPUT_FILEs can be given using the -i option.
+
+If OUTPUT_FILE is not given, output file name is generated
+from INPUT_FILE/s name.
+
+Specifying the -o option for OUTPUT_FILE is madatory only when:
+    - multiple INPUT_FILEs are given using the -i option
+    - INPUT_DIRECTORY is given using the -s option
+
+Specifying `{input_type}` prefix is mandatory only when INPUT_DIRECTORY
+is specified (using the -s option) without preceeding INPUT_FILE/s.
+
+Mandatory arguments to long options are mandatory for short options too.
+-i, --input-files=INPUT_FILE...     OCR multiple input {input_type}s. Must use
+                                      the -o option for OUTPUT_FILE.
+-s, --src-dir=INPUT_DIRECTORY       specify INPUT_FILE/s' directory. Must
+                                      use the -o option for OUTPUT_FILE.
+-o, --output-file=OUTPUT_FILE       save output with provided file name.
+                                      Implies the -j option.
+-d, --dest-dir=OUTPUT_DIRECTORY     save output file/s in the specified
+                                      OUTPUT_DIRECTORY.
+-j, --join                          output to a single file.
+-m, --mode={{'print'|'txt'|'pdf'|'docx'}}       specify OUTPUT_FILE type.
+                                      'print' for stdout (default),
+                                      'txt' for plain text,
+                                      'docx' for MS word and 'pdf' for pdf.
+-c, --confidence                    display average OCR confidence level.
+-v, --verbose                       display detailed process information.
+
+Use `default` command to display or change default values for:
+    - INPUT_DIRECTORY
+    - OUTPUT_FILE type (output mode)
+    - OUTPUT_DIRECTORY
+"""
+        print(usage.format(input_type=input_type))
+
+    def help_default(self):
+        """Prints help text for `default` command"""
+        usage = """
+Usage: default [OPTION]...
+
+Without options:
+  Displays default values for:
+    - input directory for image files
+    - input directory for pdf files
+    - output directory for image and pdf files
+    - output mode (output file type)
+    - tesseract training data directory
+    - tesseract language
+    - tesseract page segmentation mode
+    - tesseract OCR engine mode
+    - path and name of font for MS word and pdf outputs
+    - line width and height for pdf outputs
+
+With options change default values for the above parameters.
+
+Mandatory arguments to long options are mandatory for short options too.
+
+For input and output
+====================
+-ii, --in-dir-image=INPUT_DIR       set default image file input directory.
+-ip, --in-dir-pdf=INPUT_DIR         set default pdf file input directory.
+ -o, --out-dir=OUTPUT_DIRECTORY     set default output file directory.
+ -m, --mode={'print'|'txt'|'pdf'|'docx'}      set default output file type.
+                                      'print' for stdout (default),
+                                      'txt' for plain text,
+                                      'docx' for MS word and 'pdf' for pdf.
+
+For tesseract
+=============
+-td, --training-dir=TRAIN_DIR       set default training data directory.
+-tl, --lang={'amh', 'tir', 'eng'}   set default tesseract language.
+                                      'amh' for Amharic,
+                                      'tir' for Tigrigna and
+                                      'eng' for English.
+-tp, --psm                          set default page segmentation mode.
+-to, --oem                          set default OCR engine mode.
+
+For output file
+===============
+-fp, --font-path                    set default path to a font file.
+-fn, --font-name                    set default name of font.
+ -w, --width                        set line width for output file.
+ -h, --height                       set line heigh for output file.
+"""
+        print(usage)
 
 if __name__ == '__main__':
     OCRCommand().cmdloop()
