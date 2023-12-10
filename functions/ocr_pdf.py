@@ -5,6 +5,8 @@ import pytesseract as pts
 from io import BytesIO
 from pdf2image import convert_from_path
 from os import path
+from statistics import mean
+from .confidence import ocr_confidence
 from .process_image import process_image_simple, process_image_detailed
 from .output_to_docx import write_to_docx
 from .output_to_pdf import write_to_pdf
@@ -60,6 +62,11 @@ def ocr_pdf(**args):
     # TODO add parameters to args or create new dict
     options = config_tesseract(**args)
 
+    display_confidence = args.get('display_confidence')   # display OCR confidence summary if True
+
+    # to store average confidenece for each pdf ({pdf_file_path: {page_no: avg_conf}})
+    # key: input pdf path, value: a dict with page no as key and average conf for each page as value
+    confidence_dict = {}
     for pdf_index, input_pdf in enumerate(input_pdfs):
 
         # if not join create new output_doc for each pdf, else use one output_doc for all
@@ -90,6 +97,9 @@ def ocr_pdf(**args):
         if not join:
             total_pages = 0
 
+        # to store average confidenece for each page of current pdf ({page_no: avg_conf})
+        curr_pdf_conf_dict = {}
+
         # iterate over each pdf's pages
         for page_index, page in enumerate(pages):
 
@@ -115,12 +125,17 @@ def ocr_pdf(**args):
                 # process image
                 # TODO add global variable for simple/detailed choice
                 # processed_image = process_image_simple(image_file_path)
-                
+
                 # Temporary
                 processed_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
                 # other formats image_to_[...] - 'data' with dict option, pdf, box ...
                 text = pts.image_to_string(processed_image, config=options)
+
+                # find and store average confidence for each page
+                if display_confidence:
+                    current_page_conf = ocr_confidence(processed_image, options, **args)
+                    curr_pdf_conf_dict[page_index + 1] = current_page_conf
 
                 # save output if this is last page of current pdf and,
                 # not join or join and current pdf is last one in list of pdfs  
@@ -162,10 +177,29 @@ def ocr_pdf(**args):
                     text += footer
                     output_document = write_to_pdf(text, output_file_path, output_document, **params)
         
+        # add current pdf confidence dict to confidence dict
+        if display_confidence:
+            confidence_dict[pdf_file_path] = curr_pdf_conf_dict
 
         total_pages += len(pages)
         # if save display successful OCR summary
+        # TODO add more detail - path of pdfs, with page no. for each if join)
         if save:
+            # TODO move conf display to confidence/other separate function
+            conf_info = ''
+            if display_confidence:
+                if join:    # display average of each pdf's average confidence
+                    # TODO if verbose display avg_conf for each pdf too
+                    # find sum of avg_conf of pages for each pdf
+                    avg_conf_sum_list = [sum(p) for p in map(dict.values, confidence_dict.values())]
+                    # divide sum of avg_conf sum of each pdf by total pages
+                    avg_conf = round(sum(avg_conf_sum_list) / total_pages, 2)
+
+                else:       # display average confidence for each pdf
+                    avg_conf = round(mean(curr_pdf_conf_dict.values()), 2)
+
+                conf_info = " with an average confidence of {}%".format(avg_conf)
+
             saved_to = 'stdout' if output_mode == 'print' else path.abspath(output_file_path)
-            print("Successfuly OCR'ed {} no. of pages and wrote to '{}'\n"
-                .format(total_pages, saved_to))
+            print("Successfuly OCR'ed {} no. of pages{} and wrote to '{}'\n"
+                .format(total_pages, conf_info, saved_to))
