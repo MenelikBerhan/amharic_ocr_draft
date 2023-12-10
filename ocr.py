@@ -8,8 +8,8 @@ Attributes:
 """
 import cmd
 from functions import defaults_dict, tesseract_dict, write_dict
-from functions.image_ocr import image_ocr
-from functions.pdf_ocr import pdf_ocr
+from functions.ocr_image import ocr_image
+from functions.ocr_pdf import ocr_pdf
 from functions.parse_input_cmd import parse_ocr_cmd, parse_default_cmd
 from functions.set_defaults import set_defaults
 from functions.validate_input_cmd import validate_parsed_ocr_cmd
@@ -126,37 +126,37 @@ class OCRCommand(cmd.Cmd):
         """Performs an OCR on images."""
         args = parse_ocr_cmd('image ' + arg)
 
-        print('\n----PARSE_INPUT RETURN-------')
-        pprint(args)
-        print('--------------------------------')
+        # print('\n----PARSE_INPUT RETURN-------')
+        # pprint(args)
+        # print('--------------------------------')
         if not args:
             return
         validated_args = validate_parsed_ocr_cmd('image ' + arg, **args)
 
-        print('\n----VALIDATE_ARGS RETURN-------')
-        pprint(validated_args)
-        print('--------------------------------')
+        # print('\n----VALIDATE_ARGS RETURN-------')
+        # pprint(validated_args)
+        # print('--------------------------------')
 
         if validated_args:
-            image_ocr(**validated_args)
+            ocr_image(**validated_args)
 
     def do_pdf(self, arg):
         """Performs an OCR on pdfs."""
         args = parse_ocr_cmd('pdf ' + arg)
 
-        print('\n----PARSE_INPUT RETURN-------')
-        pprint(args)
-        print('--------------------------------')
+        # print('\n----PARSE_INPUT RETURN-------')
+        # pprint(args)
+        # print('--------------------------------')
         if not args:
             return
         validated_args = validate_parsed_ocr_cmd('pdf ' + arg, **args)
 
-        print('\n----VALIDATE_ARGS RETURN-------')
-        pprint(validated_args)
-        print('--------------------------------')
+        # print('\n----VALIDATE_ARGS RETURN-------')
+        # pprint(validated_args)
+        # print('--------------------------------')
 
         if validated_args:
-            pdf_ocr(**validated_args)
+            ocr_pdf(**validated_args)
 
     def do_default(self, arg):
         """Sets default params or prints default parameters."""
@@ -171,15 +171,15 @@ class OCRCommand(cmd.Cmd):
             pprint(write_dict)
         else:
             args = parse_default_cmd(arg)
-            print('\n----PARSE_INPUT RETURN-------')
-            pprint(args)
-            print('--------------------------------')
+            # print('\n----PARSE_INPUT RETURN-------')
+            # pprint(args)
+            # print('--------------------------------')
 
             if args is not None:
                 validated_args = validate_parsed_defalt_cmd('default ' + arg, **args)
-                print('\n----VALIDATE_ARGS RETURN-------')
-                pprint(validated_args)
-                print('--------------------------------')
+                # print('\n----VALIDATE_ARGS RETURN-------')
+                # pprint(validated_args)
+                # print('--------------------------------')
                 if validated_args:
                     set_defaults(**validated_args)
 

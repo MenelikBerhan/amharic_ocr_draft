@@ -55,6 +55,8 @@ def parse_ocr_cmd(line):
 
     parser.add_argument('-v', '--verbose', action='store_true', help='display details of OCR (Confidence level, total pages ...)')
 
+    parser.add_argument('-c', '--confidence', dest='display_confidence', action='store_true', help='display average OCR confidence level')
+
     try:
         args = parser.parse_args(split(line))
         return(vars(args))

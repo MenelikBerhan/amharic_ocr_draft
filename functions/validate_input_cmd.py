@@ -188,6 +188,9 @@ def validate_parsed_ocr_cmd(line, **args):
     # set default output mode if None
     output_mode = output_mode if output_mode else OUTPUT_MODE_DEFAULT
 
+    # get display_confidence level
+    display_confidence = args.get('display_confidence')
+
     # TODO check if output_file already exist in output_dir,
     # and prompt for deletion/overwriting confirmation from user
 
@@ -200,7 +203,8 @@ def validate_parsed_ocr_cmd(line, **args):
         'output_directory': output_directory,
         'output_file': output_file,
         'output_mode': output_mode,
-        'verbose': verbose
+        'verbose': verbose,
+        'display_confidence': display_confidence
         }
 
     """

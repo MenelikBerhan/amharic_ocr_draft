@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 import pytesseract as pts
 from os import path
+from statistics import mean
+from .confidence import ocr_confidence
 from .output_to_docx import write_to_docx
 from .output_to_pdf import write_to_pdf
 from .output_to_txt import write_to_txt
@@ -8,7 +10,7 @@ from .process_image import process_image_simple, process_image_detailed
 from .tesseract_config import config_tesseract
 
 
-def image_ocr(**args):
+def ocr_image(**args):
     """
     Performs OCR on images and depending on user input, output to either:
         * standard output (default),
@@ -53,6 +55,9 @@ def image_ocr(**args):
     # TODO add parameters to args or create new dict
     options = config_tesseract(**args)
 
+    display_confidence = args.get('display_confidence')   # display OCR confidence summary if True
+
+    confidence_dict = {}    # to store average confidenece for each image ({image_name: avg_conf})
     for i, image in enumerate(input_images):
         
         # if not join create new output_doc for each image, else use one output_doc for all
@@ -72,6 +77,11 @@ def image_ocr(**args):
         # other formats image_to_[...] - 'data' with dict option, pdf, box ...
         text = pts.image_to_string(processed_image, config=options)
 
+        # find and store average confidence for each image
+        if display_confidence:
+            current_image_conf = ocr_confidence(processed_image, options, **args)
+            confidence_dict[image_file_path] = current_image_conf
+ 
         # save output file if not join or this is last page
         # TODO check system strain for too many image inputs with join
         save = not join or (i == len(input_images) - 1)
@@ -124,5 +134,17 @@ def image_ocr(**args):
                 info = "{} images".format(total_pages)
             else:
                 info = "image '{}'".format(image_file_path)
-            print("Successfuly OCR'ed {} and wrote to '{}'\n"
-                .format(info, saved_to))
+
+            # TODO move conf display to confidence/other separate function
+            conf_info = ''  # TODO for verbose display words with low conf
+            if display_confidence:
+                if join and total_pages > 1:  # display average of each image's average confidence
+                    avg_conf_list = confidence_dict.values()
+                    avg_conf = round(mean(avg_conf_list), 2)
+
+                else:       # display average confidence for each image
+                    avg_conf = current_image_conf
+                conf_info = ' with an average confidence of {}%'.format(avg_conf)
+
+            print("Successfuly OCR'ed {}{} and wrote to '{}'\n"
+                .format(info, conf_info, saved_to))
