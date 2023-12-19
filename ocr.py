@@ -67,10 +67,13 @@ class OCRCommand(cmd.Cmd):
 
     def do_image(self, arg):
         """Performs an OCR on images."""
+        # add image prefix before parsing
         args = parse_ocr_cmd('image ' + arg)
 
         if not args:
             return
+        
+        # check for proper argument values
         validated_args = validate_parsed_ocr_cmd('image ' + arg, **args)
 
         if validated_args:
@@ -78,10 +81,13 @@ class OCRCommand(cmd.Cmd):
 
     def do_pdf(self, arg):
         """Performs an OCR on pdfs."""
+        # add pdf prefix before parsing
         args = parse_ocr_cmd('pdf ' + arg)
 
         if not args:
             return
+
+        # check for proper argument values
         validated_args = validate_parsed_ocr_cmd('pdf ' + arg, **args)
 
         if validated_args:
