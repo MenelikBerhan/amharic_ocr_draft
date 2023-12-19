@@ -83,7 +83,6 @@ def ocr_image(**args):
             confidence_dict[image_file_path] = current_image_conf
  
         # save output file if not join or this is last page
-        # TODO check system strain for too many image inputs with join
         save = not join or (i == len(input_images) - 1)
 
         # set output file path from input file name for each image.

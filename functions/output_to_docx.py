@@ -18,7 +18,7 @@ def write_to_docx(text, output_file_path, document=None, **args):
         Document: a Document object with newly added page containing text.
 
     """
-
+    # TODO - check if saving document after treshold no. of pages speeds up process
     document = document if document else docx.Document()
     par = document.add_paragraph().add_run(text)
     par.font.name = args.get('font_name', write_dict.get('font_name_def'))
@@ -26,6 +26,6 @@ def write_to_docx(text, output_file_path, document=None, **args):
     if args.get('save'):
         document.save(output_file_path)
 
-    return (document)
     # TODO - handle other args for MSword formatiing
 
+    return (document)

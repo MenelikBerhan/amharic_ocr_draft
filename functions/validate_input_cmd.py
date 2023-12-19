@@ -8,6 +8,7 @@ from . import defaults_dict, tesseract_dict, write_dict
 
 
 # TODO break up function into parts based on what it validates
+# TODO use single function for common params for ocr and default
 # TODO for input output file/dir in current working directory
     # For now must prefix with './'
 

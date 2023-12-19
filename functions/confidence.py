@@ -23,9 +23,6 @@ def ocr_confidence(processed_image, options, **args):
     # list of confidence level and words (including empty strings)
     conf_list = ocr_dict['conf']
     text_list = ocr_dict['text']
-    # par_num = ocr_dict['par_num']
-    # line_num = ocr_dict['line_num']
-    # word_num = ocr_dict['word_num']
 
     # extract confidence list for non empty word strings
     valid_index = [i for i, word in enumerate(text_list) if word]
@@ -33,9 +30,5 @@ def ocr_confidence(processed_image, options, **args):
                        if i in valid_index]
 
     # TODO if verbose: calc stdev and display words with conf < mean - k*stdev (k=1 or 2)
-    # print('PAR\tLINE\tCONF\tTEXT\tIN_AVG_CALC')
-    # for i in range(len(conf_list)):
-    #     print('{}\t{}\t{}\t{}\t{}'.format(
-    #         par_num[i], line_num[i], conf_list[i], text_list[i], i in valid_index))
 
     return(round(mean(valid_conf_list), 2))

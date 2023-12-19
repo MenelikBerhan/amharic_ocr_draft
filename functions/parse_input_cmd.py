@@ -57,6 +57,8 @@ def parse_ocr_cmd(line):
 
     parser.add_argument('-c', '--confidence', dest='display_confidence', action='store_true', help='display average OCR confidence level')
 
+    # TODO - add arguments for additional tesseract options and output formatting
+
     try:
         args = parser.parse_args(split(line))
         return(vars(args))
@@ -107,6 +109,8 @@ def parse_default_cmd(line):
     parser.add_argument('-w', '--width', dest='width', required=False, type=int, nargs=1, metavar='width_default', help='Set default line width for writing output to pdf')
 
     parser.add_argument('-h', '--height', dest='height', required=False, type=int, nargs=1, metavar='line_height_default', help='Set default line height for writing output to pdf')
+
+    # TODO - add arguments for additional tesseract options and output formatting
 
     try:
         args = parser.parse_args(split(line))

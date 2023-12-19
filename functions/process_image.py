@@ -20,6 +20,7 @@ def process_image_simple(input_file, **args):
     
     input_file_type = args.get('input_file_type')
 
+    # TODO - check if loading images using buffer improves efficency
     # load image based on input file type
     if input_file_type == 'image':
         image = cv2.imread(input_file)
@@ -41,7 +42,7 @@ def process_image_simple(input_file, **args):
     return (im_bw)
 
 
-
+# TODO - set image size and treshold dynamically based on user input
 IMAGE_SIZE = 1800
 BINARY_THREHOLD = 180
 

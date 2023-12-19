@@ -50,3 +50,6 @@ def set_defaults(**args):
     defaults_dict.update(defaults_update)
     tesseract_dict.update(tesseract_update)
     write_dict.update(write_update)
+
+    # TODO - save defaults in a file using json
+    # TODO - handle defaults reset

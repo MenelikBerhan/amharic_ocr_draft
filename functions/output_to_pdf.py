@@ -19,7 +19,6 @@ def write_to_pdf(text, output_file_path, pdf=None, **args):
             page containing text.
 
     """
-    # TODO set and get defaults from module level variables
 
     # to check if this is the first time setting up pdf
     new_pdf = pdf is None
@@ -45,8 +44,10 @@ def write_to_pdf(text, output_file_path, pdf=None, **args):
     # write text
     pdf.multi_cell(w=w, h=h, text=text)
 
+    # TODO - check if saving document after treshold no. of pages speeds up process
     if args.get('save'):
         pdf.output(output_file_path)
 
-    return(pdf)
     # TODO handle other args for pdf formatting
+
+    return(pdf)

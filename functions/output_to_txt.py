@@ -29,4 +29,5 @@ def write_to_txt(text, output_file_path, output_document, **args):
     with open(output_file_path, write_mode, encoding='utf-8') as file:
         file.write(text)
 
+    # TODO handle other args for output formatting
     return (output_document)

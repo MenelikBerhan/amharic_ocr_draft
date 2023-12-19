@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-import cv2
-import numpy as np
 import pytesseract as pts
 from io import BytesIO
 from pdf2image import convert_from_path
