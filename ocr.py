@@ -39,8 +39,8 @@ class OCRCommand(cmd.Cmd):
     def precmd(self, line):
         """Hook method executed just before the command line is
         interpreted, but after the input prompt is generated and issued."""
-
-        if line and split(line)[0] not in ['image', 'pdf']:  # add image/pdf depending on input file extension
+        # add image/pdf prefix depending on input file extension
+        if line and split(line)[0] not in ['image', 'pdf']:
             file_ext = ''
             for i in split(line):
                 if not i.startswith('-'):
@@ -56,9 +56,11 @@ class OCRCommand(cmd.Cmd):
     def default(self, line):
         """Called on an input line when the command prefix is not recognized.
         """
-        if line and line.startswith('-s'):  # -s flag (wihtout INPUT_FILES) not prefixed with image|pdf
+        # -s flag (wihtout INPUT_FILES) not prefixed with image|pdf
+        if line and line.startswith('-s'):
             self.stdout.write('*** Syntax Error: must provide input file type [image|pdf] before -s flag\n')
-        elif line and line.startswith('-i'):  # -i flag (not prefixed with image|pdf) followed by file with invalid file extention
+        # -i flag (not prefixed with image|pdf) followed by file with invalid file extention
+        elif line and line.startswith('-i'):
             self.stdout.write('*** Input Error: input file must be image (.jpeg|.png|.jpg) or pdf (.pdf).\n')
         else:
             super().default(line)
@@ -89,12 +91,13 @@ class OCRCommand(cmd.Cmd):
         """Sets default params or prints default parameters."""
         # TODO add defaults reseter feature
         if not arg:
-            print('============ Input and Output Defaults ============\n')
+            print('\n============ Input and Output Defaults ============\n')
             pprint(defaults_dict)
             print('\n============ Tesseract Params Defaults ============\n')
             pprint(tesseract_dict)
             print('\n=========== Ouput file Writing Defaults ===========\n')
             pprint(write_dict)
+            print()
         else:
             args = parse_default_cmd(arg)
             if args is not None:
@@ -104,11 +107,11 @@ class OCRCommand(cmd.Cmd):
 
     def help_image(self):
         """Prints help text for `image` command"""
-        return(self.ocr_help('image'))
+        return (self.ocr_help('image'))
 
     def help_pdf(self):
         """Prints help text for `pdf` command"""
-        return(self.ocr_help('pdf'))
+        return (self.ocr_help('pdf'))
 
     def ocr_help(self, input_type):
         """Prints help text for `image` and `pdf` OCR commands"""
@@ -208,6 +211,7 @@ For writing to output file
  -h, --height                       set line heigh for output file.
 """
         print(usage)
+
 
 if __name__ == '__main__':
     OCRCommand().cmdloop()
