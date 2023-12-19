@@ -5,27 +5,32 @@ import tempfile
 from PIL import Image
 
 
-def process_image_simple(input_file_path, **args):
+def process_image_simple(input_file, **args):
     """Performs image preprocessing before passing image to tesseract.
     
     Args:
-        input_file_path (str): path of image to be processed
+        input_file: a string path of image file to be processed for
+            image input files, or image as a bytes array for pdf input files.
         **args (dict): dictionary of parameters
 
     Returns:
         MatLike: the processed image as a MatLike Object of OpenCV2.
     
     """
-    # load image
-    # TODO load image with cv2 using numpy on buffer for pdf pages
-    # image = cv2.imdecode(np.frombuffer(img_stream.read(), np.uint8), 1)
-    img = cv2.imread(input_file_path)
+    
+    input_file_type = args.get('input_file_type')
+
+    # load image based on input file type
+    if input_file_type == 'image':
+        image = cv2.imread(input_file)
+    elif input_file_type == 'pdf':
+        image = cv2.imdecode(np.frombuffer(input_file.read(), np.uint8), 1)
 
     # cv2.imshow("orginal", image)
     # cv2.waitKey(0)
-    def grayscale(image):
-        return cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    gray_image = grayscale(img)
+
+    # convert image to grayscale (black & white)
+    gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     # cv2.imwrite("temp/gray.jpg", gray_image)
 
     thresh, im_bw = cv2.threshold(gray_image, 210, 230, cv2.THRESH_BINARY)
