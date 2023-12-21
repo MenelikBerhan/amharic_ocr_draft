@@ -5,9 +5,18 @@
 
 Menelik's Berhan (loosely translated as Menelik's light) is a command line interface app that performs OCR on image and pdf files with Ehtiopic (Amharic/Gee'z) script. Its developed with the intention of using it for a web/mobile app of old Amharic and Gee'z dictionaries.
 
+__Implemented and Tested on Ubuntu 20.04 with Python 3.8__
+
 ### [Project Blog Article](https://www.linkedin.com/pulse/implementing-ethiopic-script-ocr-app-girma-eshete-srp3e)
 
 ## Installation
+
+#### Install tesseract
+
+```
+sudo apt update
+sudo apt install -y tesseract-ocr
+```
 
 #### Clone the repo
 ```
@@ -35,9 +44,20 @@ python3 pip install -r requirements.txt
 ## Usage
 
 The CLI has three commands:
+- `help` for displaying help txt
 - `image` for performing OCR on image files,
 - `pdf` for performing OCR on pdf files and
 - `default` for diplaying or setting default parameters.
+
+### `help`
+
+```
+Usage: help
+Displays list of available commands
+
+Usage: help <command>
+Display detailed help about the specific command
+```
 
 ### `image` and `pdf`
 
@@ -78,7 +98,6 @@ Mandatory arguments to long options are mandatory for short options too.
                                       'txt' for plain text,
                                       'docx' for MS word and 'pdf' for pdf.
 -c, --confidence                    display average OCR confidence level.
--v, --verbose                       display detailed process information.
 
 Use `default` command to display or change default values for:
     - INPUT_DIRECTORY
