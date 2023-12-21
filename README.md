@@ -33,7 +33,7 @@ source .venv/bin/activate
 
 #### Install required packages using pip:
 ```
-python3 pip install -r requirements.txt
+python3 -m pip install -r requirements.txt
 ```
 
 #### Start the app:
