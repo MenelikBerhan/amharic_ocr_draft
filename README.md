@@ -1,6 +1,7 @@
 # Menelik's Berhan Ethiopic Script OCR app
 
-![logo](https://drive.google.com/uc?export=view&id=1Id5pBcuPPtlFo5Dt4JuGH7GW-4xXqnxU)
+![logo1](https://github.com/MenelikBerhan/amharic_ocr_draft/assets/125494245/0b1f5abb-da5e-47fb-ac87-3a492db27eaf)
+
 ## Introduction
 
 Menelik's Berhan (loosely translated as Menelik's light) is a command line interface app that performs OCR on image and pdf files with Ehtiopic (Amharic/Gee'z) script. Its developed with the intention of using it for a web/mobile app of old Amharic and Gee'z dictionaries.
