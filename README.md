@@ -155,6 +155,11 @@ For writing to output file
  -h, --height                       set line heigh for output file.
 ```
 
+## Image OCR demo
+
+https://github.com/MenelikBerhan/amharic_ocr_draft/assets/125494245/89ac29ce-0e73-4f62-b4f9-390ddea74038
+
+
 ## Contributors
 ### Girma Eshete aka Menelik Berhan
 [Linkedin](https://www.linkedin.com/in/menelikberhan)
