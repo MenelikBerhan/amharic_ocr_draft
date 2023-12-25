@@ -28,12 +28,14 @@ cd amharic_ocr_draft
 #### (Optional) Set up a python vertual environment using venv:
 Its recommended to setup a python vertual environment before installing requirements:
 ```
+sudo apt install -y python3.8-venv
 python3 -m venv .venv
 source .venv/bin/activate
 ```
 
 #### Install required packages using pip:
 ```
+python3 -m pip install --upgrade pip
 python3 -m pip install -r requirements.txt
 ```
 
