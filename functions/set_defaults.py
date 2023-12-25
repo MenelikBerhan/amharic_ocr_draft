@@ -15,7 +15,7 @@ defaults_reset_dict = {
         'image_extensions': ['png', 'jpeg', 'jpg']},        # valid image input files extension
 
     'tesseract_dict': {
-        'training_dir_def': 'training_data_new',   # default tesseract training data directory
+        'training_dir_def': 'training_data/fast',   # default tesseract training data directory
         'lang_def': 'amh',      # default language for OCR
         'psm_def' : 3,          # default page segmentation mode in tesseract
         'oem_def' : 1},         # default OCR engine mode for tesseract
