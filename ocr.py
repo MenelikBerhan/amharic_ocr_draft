@@ -3,6 +3,7 @@
 Command line interface for Ethiopic Script OCR app
 """
 import cmd
+import os
 from functions import defaults_dict, tesseract_dict, write_dict
 from functions.ocr_image import ocr_image
 from functions.ocr_pdf import ocr_pdf
@@ -20,7 +21,20 @@ class OCRCommand(cmd.Cmd):
     """
     prompt = '(ocr) '
 
-    def preloop(self) -> None:
+    def preloop(self):
+        """Called at the start of the CLI.
+        Checks if default params are valid."""
+        output_dir_def = defaults_dict.get('output_dir_def')
+        valid = 1
+        if not os.path.exists(output_dir_def) or not os.path.isdir(output_dir_def):
+            print("*** Input Error: output directory '{}' does not exist".format(output_dir_def))
+            ans = input("Do you want to create the output directory {}? y/n:  ".format(output_dir_def))
+            if ans.lower() in ('y', 'yes'):
+                os.system('mkdir {}'.format(output_dir_def))
+                print('Created default output directory {}'.format(output_dir_def))
+                return (None)
+            else:
+                print('Set default output folder using `default -o <output directory path>.')
         return super().preloop()
 
     def do_EOF(self, arg):
